@@ -1,3 +1,7 @@
+// <copyright file="WeatherForecastController.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 namespace SecureBankAPI.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
