@@ -85,7 +85,46 @@ namespace SecureBankAPI.Controllers
             }
             catch (Exception ex)
             {
+                this.logger?.LogError(ex, ex.Message);
+
                 return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of all clients and their investments, or a specific client if an ID is provided.
+        /// </summary>
+        /// <param name="id">The optional client ID. If provided, only the client with this ID and their investments will be returned.</param>
+        /// <returns>A list of clients or a specific client with their investments.</returns>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsManagePolicy)]
+        [HttpGet]
+        [Route(Routes.ClientInvestment)]
+        public async Task<IActionResult> GetClientInvestmentsAsyncById(Guid? id)
+        {
+            try
+            {
+                if (id.HasValue)
+                {
+                    var clientWithInvestments = await this.clientService.GetClientWithInvestmentsByIdAsync(id.Value);
+
+                    if (clientWithInvestments == null)
+                    {
+                        return this.NotFound("Client not found.");
+                    }
+
+                    return this.Ok(clientWithInvestments);
+                }
+                else
+                {
+                    var clientsWithInvestments = await this.clientService.GetAllClientsWithInvestmentsAsync();
+                    return this.Ok(clientsWithInvestments);
+                }
+            }
+            catch (Exception ex)
+            {
+               this.logger.LogError(ex, ex.Message);
+
+               return this.StatusCode(500, ex.Message);
             }
         }
     }

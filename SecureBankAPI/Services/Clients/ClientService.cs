@@ -104,5 +104,33 @@
                 throw new Exception(ex.Message, ex.InnerException);
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<ClientWithInvestmentsViewModel> GetClientWithInvestmentsByIdAsync(Guid clientId)
+        {
+            try
+            {
+                var client = await this.clientsRepository.GetClientByIdAsync(clientId);
+
+                if (client == null)
+                {
+                    return new ClientWithInvestmentsViewModel { };
+                }
+
+                var investments = await this.investmentsRepository.GetInvestmentsByClientIdAsync(clientId);
+
+                var clientWithInvestments = new ClientWithInvestmentsViewModel
+                {
+                    Client = client,
+                    Investments = investments.ToList(),
+                };
+
+                return clientWithInvestments;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
     }
 }

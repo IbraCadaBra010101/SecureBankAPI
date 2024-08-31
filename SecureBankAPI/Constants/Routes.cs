@@ -18,6 +18,14 @@ namespace SecureBankAPI.Models
         internal const string ClientsInvestments = "ClientsInvestments";
 
         /// <summary>
+        /// Gets or sets the route to read all clients and their investments or a specific client by ID.
+        /// </summary>
+        /// <remarks>
+        /// The route will return all clients with their investments if no ID is provided, or a specific client with their investments if an ID is provided.
+        /// </remarks>
+        internal const string ClientInvestment = "investments/{id?}";
+
+        /// <summary>
         /// Gets or sets the route to add a new client.
         /// </summary>
         /// <remarks>

@@ -31,5 +31,15 @@
         /// This method fetches all clients from the repository and retrieves their investments based on client IDs.
         /// </remarks>
         Task<IEnumerable<ClientWithInvestmentsViewModel>> GetAllClientsWithInvestmentsAsync();
+
+        /// <summary>
+        /// Retrieves a client by their unique identifier along with their associated investments.
+        /// </summary>
+        /// <param name="clientId">The unique identifier of the client.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result contains a <see cref="ClientWithInvestmentsViewModel"/>
+        /// object representing the client and their investments, or null if the client is not found.
+        /// </returns>
+        Task<ClientWithInvestmentsViewModel> GetClientWithInvestmentsByIdAsync(Guid clientId);
     }
 }
