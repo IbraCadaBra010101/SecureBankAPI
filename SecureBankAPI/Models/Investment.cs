@@ -151,7 +151,7 @@ namespace SecureBankAPI.Models
         /// <summary>
         /// Gets or sets the unique identifier of the client who owns the investment.
         /// </summary>
-        public int? ClientId { get; set; }
+        public Guid ClientId { get; set; }
 
         /// <summary>
         /// Gets or sets the client associated with this investment.

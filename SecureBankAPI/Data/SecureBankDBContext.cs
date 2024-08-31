@@ -41,19 +41,23 @@
 
                 entity?.HasMany(c => c.Investments)
                       .WithOne(i => i.Client)
-                      .HasForeignKey(i => i.ClientId)
-                      .OnDelete(DeleteBehavior.SetNull);
+                      .HasForeignKey(i => i.ClientId);
             });
 
             modelBuilder.Entity<Investment>(entity =>
             {
+                entity.Property(e => e.Amount)
+                  .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.CurrentValue)
+                      .HasColumnType("decimal(18,2)");
+
                 entity.HasKey(i => i.InvestmentId);
 
                 entity.HasOne(i => i.Client)
                       .WithMany(c => c.Investments)
-                      .HasForeignKey(i => i.ClientId)
-                      .OnDelete(DeleteBehavior.SetNull);
-            });
+                      .HasForeignKey(i => i.ClientId);
+                      });
         }
     }
 }
