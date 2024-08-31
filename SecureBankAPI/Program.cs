@@ -5,7 +5,6 @@
 #pragma warning disable SA1200
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using SecureBankAPI.Data;
@@ -72,16 +71,6 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<SecureBankDBContext>();
     dbContext.Database.Migrate();
 }
-
-app.Use(async (context, next) =>
-{
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation("Incoming request: {method} {url}", context.Request.Method, context.Request.Path);
-
-    await next();
-
-    logger.LogInformation("Response status code: {statusCode}", context.Response.StatusCode);
-});
 
 if (app.Environment.IsDevelopment())
 {
