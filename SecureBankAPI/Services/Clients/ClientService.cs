@@ -74,5 +74,35 @@
                 throw;
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<ClientWithInvestmentsViewModel>> GetAllClientsWithInvestmentsAsync()
+        {
+            try
+            {
+                var clients = await this.clientsRepository.GetAllClientsAsync();
+
+                var clientWithInvestmentsList = new List<ClientWithInvestmentsViewModel>();
+
+                foreach (var client in clients)
+                {
+                    var investments = await this.investmentsRepository.GetInvestmentsByClientIdAsync(client.ClientId);
+
+                    var clientWithInvestments = new ClientWithInvestmentsViewModel
+                    {
+                        Client = client,
+                        Investments = investments.ToList(),
+                    };
+
+                    clientWithInvestmentsList.Add(clientWithInvestments);
+                }
+
+                return clientWithInvestmentsList;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex.InnerException);
+            }
+        }
     }
 }

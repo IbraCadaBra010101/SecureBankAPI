@@ -65,16 +65,28 @@ namespace SecureBankAPI.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all clients.
+        /// Gets a list of all clients and their investments.
         /// </summary>
         /// <returns>A list of clients.</returns>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsReadAllPolicy)]
         [HttpGet]
         [Route(Routes.Clients)]
-        public async Task<IEnumerable<Client>> GetClientsAsync()
+        public async Task<IActionResult> GetClientInvestmentsAsync()
         {
-            await Task.CompletedTask;
-            return await Task.FromResult(Enumerable.Empty<Client>());
+            try
+            {
+                var result = await this.clientService.GetAllClientsWithInvestmentsAsync().ConfigureAwait(false);
+                if (result == null || !result.Any())
+                {
+                    return this.NotFound(MessageConstants.NoClientsInvestmentsFound);
+                }
+
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         /// <summary>
