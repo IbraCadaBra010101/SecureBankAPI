@@ -12,7 +12,7 @@ using SecureBankAPI.Data;
 namespace SecureBankAPI.Migrations
 {
     [DbContext(typeof(SecureBankDBContext))]
-    [Migration("20240830172506_InititialMigrationSecureBank")]
+    [Migration("20240831135939_InititialMigrationSecureBank")]
     partial class InititialMigrationSecureBank
     {
         /// <inheritdoc />
@@ -31,10 +31,7 @@ namespace SecureBankAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DateOfBirth")
+                    b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateRegistered")
@@ -47,9 +44,6 @@ namespace SecureBankAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NationalId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -66,28 +60,25 @@ namespace SecureBankAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("Amount")
+                    b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("CurrentValue")
+                    b.Property<decimal>("CurrentValue")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("DateInvested")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("InvestmentName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("InvestmentCategory")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InvestmentStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("RiskLevel")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("InvestmentId");

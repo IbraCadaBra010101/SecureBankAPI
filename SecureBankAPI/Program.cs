@@ -9,13 +9,16 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using SecureBankAPI.Data;
 using SecureBankAPI.Models;
+using SecureBankAPI.Repository.Clients;
+using SecureBankAPI.Repository.Investments;
+using SecureBankAPI.Services.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration);
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection(Authentication.AzureADSection));
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(Authentication.ClientsReadAllPolicy, policy =>
@@ -63,6 +66,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<SecureBankDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
+builder.Services.AddScoped<IInvestmentsRepository, InvestmentsRepository>();
+
+builder.Services.AddScoped<IClientService, ClientService>();
 
 var app = builder.Build();
 
