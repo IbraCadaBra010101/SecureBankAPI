@@ -23,5 +23,11 @@ namespace SecureBankAPI.Models
         /// Message indicating that an error occurred while processing the request.
         /// </summary>
         public const string InternalServerError = "An error occurred while processing your request.";
+
+        /// <summary>
+        /// Message indicating that an error occurred while processing the request.
+        /// </summary>
+        public const string NoClientsInvestmentsFound = "No Client Investments where found.";
     }
 }
+ 

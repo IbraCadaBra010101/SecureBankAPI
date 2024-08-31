@@ -5,7 +5,6 @@
 namespace SecureBankAPI.Controllers
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -68,14 +67,15 @@ namespace SecureBankAPI.Controllers
         /// Gets a list of all clients and their investments.
         /// </summary>
         /// <returns>A list of clients.</returns>
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsReadAllPolicy)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsManagePolicy)]
         [HttpGet]
-        [Route(Routes.Clients)]
+        [Route(Routes.ClientsInvestments)]
         public async Task<IActionResult> GetClientInvestmentsAsync()
         {
             try
             {
                 var result = await this.clientService.GetAllClientsWithInvestmentsAsync().ConfigureAwait(false);
+
                 if (result == null || !result.Any())
                 {
                     return this.NotFound(MessageConstants.NoClientsInvestmentsFound);
@@ -87,20 +87,6 @@ namespace SecureBankAPI.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
-        }
-
-        /// <summary>
-        /// Edits an existing client.
-        /// </summary>
-        /// <param name="clientId">The client's ID.</param>
-        /// <returns>Enables editing an existing client.</returns>
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsManagePolicy)]
-        [HttpPut]
-        [Route(Routes.UpdateClient)]
-        public async Task<IActionResult> UpdateClientAsync(int clientId)
-        {
-            await Task.CompletedTask;
-            return this.NoContent();
         }
     }
 }

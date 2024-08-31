@@ -15,7 +15,7 @@ namespace SecureBankAPI.Models
         /// <remarks>
         /// The route will return a list of all the clients that are secure bank customers.
         /// </remarks>
-        internal const string Clients = "Clients";
+        internal const string ClientsInvestments = "ClientsInvestments";
 
         /// <summary>
         /// Gets or sets the route to add a new client.
