@@ -18,11 +18,15 @@ builder.Services.AddControllers();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration);
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(Authentication.ClientsReadAllPolicy, policy =>
-        policy.RequireRole(Authentication.ClientsReadAllRole));
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(Authentication.ClientsReadAllPolicy, policy =>
+        policy.RequireRole(Authentication.ClientsReadAllRole))
+    .AddPolicy(Authentication.ClientsManagePolicy, policy =>
+        policy.RequireRole(Authentication.ClientsManageRole))
+    .AddPolicy(Authentication.InvestmentsManagePolicy, policy =>
+        policy.RequireRole(Authentication.InvestmentsManageRole))
+    .AddPolicy(Authentication.InvestmentsReadPolicy, policy =>
+        policy.RequireRole(Authentication.InvestmentsReadRole));
 
 builder.Services.AddEndpointsApiExplorer();
 
