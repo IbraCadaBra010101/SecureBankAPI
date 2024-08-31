@@ -32,20 +32,6 @@ namespace SecureBankAPI.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all clients.
-        /// </summary>
-        /// <returns>A list of clients.</returns>
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsReadAllPolicy)]
-        [HttpGet]
-        [Route(Routes.Clients)]
-        public async Task<IEnumerable<WeatherForecast>> GetClientsAsync()
-        {
-            await Task.CompletedTask;
-
-            return Enumerable.Empty<WeatherForecast>();
-        }
-
-        /// <summary>
         /// Adds a new client.
         /// </summary>
         /// <returns>Enables adding a new client.</returns>
@@ -55,6 +41,20 @@ namespace SecureBankAPI.Controllers
         public async Task AddClientAsync()
         {
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Gets a list of all clients.
+        /// </summary>
+        /// <returns>A list of clients.</returns>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsReadAllPolicy)]
+        [HttpGet]
+        [Route(Routes.Clients)]
+        public async Task<IEnumerable<Client>> GetClientsAsync()
+        {
+            await Task.CompletedTask;
+
+            return await Task.FromResult(Enumerable.Empty<Client>());
         }
 
         /// <summary>

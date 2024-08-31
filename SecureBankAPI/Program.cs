@@ -10,7 +10,6 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using SecureBankAPI.Data;
 using SecureBankAPI.Models;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,8 @@
-﻿namespace SecureBankAPI.Models
+﻿// <copyright file="Authentication.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SecureBankAPI.Models
 {
     /// <summary>
     /// Represents authentication and authorization constants used in the investment bank system.

@@ -1,4 +1,8 @@
-﻿namespace SecureBankAPI.Migrations
+﻿// <copyright file="20240830172506_InititialMigrationSecureBank.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SecureBankAPI.Migrations
 {
     using System;
     using Microsoft.EntityFrameworkCore.Migrations;

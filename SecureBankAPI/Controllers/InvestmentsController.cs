@@ -17,11 +17,6 @@ namespace SecureBankAPI.Controllers
     [Route("[controller]")]
     public class InvestmentsController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching",
-        };
-
         /// <summary>
         /// Logger instance.
         /// </summary>
@@ -68,7 +63,7 @@ namespace SecureBankAPI.Controllers
         /// <returns>Enables editing an existing investment.</returns>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.InvestmentsManagePolicy)]
         [HttpPut]
-        [Route("update-investment/{investmentId}")]
+        [Route(Routes.UpdateInvestment)]
         public async Task UpdateInvestmentAsync(int investmentId)
         {
             await Task.CompletedTask;

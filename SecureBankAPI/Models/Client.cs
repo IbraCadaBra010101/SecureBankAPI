@@ -1,4 +1,8 @@
-﻿namespace SecureBankAPI.Models
+﻿// <copyright file="Client.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SecureBankAPI.Models
 {
     /// <summary>
     /// Represents a client in the investment bank system.

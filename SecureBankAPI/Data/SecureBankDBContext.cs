@@ -1,4 +1,8 @@
-﻿namespace SecureBankAPI.Data
+﻿// <copyright file="SecureBankDBContext.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SecureBankAPI.Data
 {
     using Microsoft.EntityFrameworkCore;
     using SecureBankAPI.Models;
