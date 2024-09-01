@@ -12,6 +12,7 @@ using SecureBankAPI.Models;
 using SecureBankAPI.Repository.Clients;
 using SecureBankAPI.Repository.Investments;
 using SecureBankAPI.Services.Clients;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,9 @@ builder.Services.AddSwaggerGen(c =>
             new string[] { }
         },
     });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
 });
 
 builder.Services.AddSwaggerGen();
