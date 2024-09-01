@@ -1,9 +1,6 @@
-﻿// <copyright file="SecureBankDBContext.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
-
-namespace SecureBankAPI.Data
+﻿namespace SecureBankAPI.Data
 {
+    using System;
     using Microsoft.EntityFrameworkCore;
     using SecureBankAPI.Models;
 
@@ -42,26 +39,53 @@ namespace SecureBankAPI.Data
             modelBuilder.Entity<Client>(entity =>
             {
                 entity.HasKey(c => c.ClientId);
-
-                entity?.HasMany(c => c.Investments)
+                entity.HasMany(c => c.Investments)
                       .WithOne(i => i.Client)
                       .HasForeignKey(i => i.ClientId);
+
+                var clientAmountSeeded = 20;
+
+                var clients = new Client[clientAmountSeeded];
+                for (int i = 0; i < 10; i++)
+                {
+                    clients[i] = new Client
+                    {
+                        ClientId = Guid.NewGuid(),
+                        FirstName = $"ClientFirstName{i + 1}",
+                        LastName = $"ClientLastName{i + 1}",
+                        Email = $"client{i + 1}@example.com",
+                        PhoneNumber = $"555-010{i + 1}",
+                        DateOfBirth = new DateTime(1980 + i, 1, 1),
+                        DateRegistered = DateTime.Now,
+                    };
+                }
+
+                modelBuilder.Entity<Client>().HasData(clients);
+
+                var investmentAmoundSeeded = 30;
+                var investments = new Investment[investmentAmoundSeeded];
+                var random = new Random();
+                int investmentIndex = 0;
+                foreach (var client in clients)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        investments[investmentIndex++] = new Investment
+                        {
+                            InvestmentId = Guid.NewGuid(),
+                            ClientId = client.ClientId,
+                            InvestmentCategory = random.Next(1, 5),
+                            Amount = random.Next(1000, 50000),
+                            DateInvested = DateTime.Now.AddMonths(-random.Next(1, 24)),
+                            CurrentValue = random.Next(1000, 50000),
+                            RiskLevel = random.Next(1, 5),
+                            InvestmentStatus = 1,
+                        };
+                    }
+                }
+
+                modelBuilder.Entity<Investment>().HasData(investments);
             });
-
-            modelBuilder.Entity<Investment>(entity =>
-            {
-                entity.Property(e => e.Amount)
-                  .HasColumnType("decimal(18,2)");
-
-                entity.Property(e => e.CurrentValue)
-                      .HasColumnType("decimal(18,2)");
-
-                entity.HasKey(i => i.InvestmentId);
-
-                entity.HasOne(i => i.Client)
-                      .WithMany(c => c.Investments)
-                      .HasForeignKey(i => i.ClientId);
-                      });
         }
     }
 }

@@ -64,5 +64,16 @@ namespace SecureBankAPI.Models
         /// The route is used to update an existing client in the secure bank system.
         /// </remarks>
         internal const string UpdateClient = "update-client/{clientId}";
+
+        /// <summary>
+        /// Gets or sets the route to read all clients with pagination.
+        /// </summary>
+        /// <remarks>
+        /// The route returns a paginated list of clients with their investments.
+        /// The `pageNumber` and `pageSize` parameters should be provided as query parameters in the URL.
+        /// Example: `ClientsInvestments/Paginated?pageNumber=1&pageSize=10`.
+        /// </remarks>
+        internal const string ClientsInvestmentsPaginated = "ClientsInvestments/Paginated";
+
     }
 }

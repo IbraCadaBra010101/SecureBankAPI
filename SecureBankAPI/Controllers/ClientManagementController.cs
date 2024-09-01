@@ -138,7 +138,7 @@ namespace SecureBankAPI.Controllers
         /// <returns>A paginated list of clients.</returns>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsManagePolicy)]
         [HttpGet]
-        [Route(Routes.ClientsInvestments)]
+        [Route(Routes.ClientsInvestmentsPaginated)]
         public async Task<IActionResult> GetClientInvestmentsAsync(int pageNumber = 1, int pageSize = 10)
         {
             try
@@ -159,6 +159,5 @@ namespace SecureBankAPI.Controllers
                 return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
-
     }
 }

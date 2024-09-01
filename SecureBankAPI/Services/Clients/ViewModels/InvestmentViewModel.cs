@@ -52,7 +52,7 @@ namespace SecureBankAPI.Services.Clients.ViewModels
         /// <summary>
         /// Gets or sets the status of the investment.
         /// </summary>
-        [Range(0, 4, ErrorMessage = "Status must be between 0 and 4.")]
+        [Range(0, 1, ErrorMessage = "Status must be between 0 and 1 where 0 means inactive and 1 - means active.")]
         public int Status { get; set; }
     }
 }
