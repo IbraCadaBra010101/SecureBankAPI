@@ -43,9 +43,7 @@
                       .WithOne(i => i.Client)
                       .HasForeignKey(i => i.ClientId);
 
-                var clientAmountSeeded = 20;
-
-                var clients = new Client[clientAmountSeeded];
+                var clients = new Client[10];
                 for (int i = 0; i < 10; i++)
                 {
                     clients[i] = new Client
@@ -62,8 +60,7 @@
 
                 modelBuilder.Entity<Client>().HasData(clients);
 
-                var investmentAmoundSeeded = 30;
-                var investments = new Investment[investmentAmoundSeeded];
+                var investments = new Investment[30];
                 var random = new Random();
                 int investmentIndex = 0;
                 foreach (var client in clients)
@@ -78,8 +75,8 @@
                             Amount = random.Next(1000, 50000),
                             DateInvested = DateTime.Now.AddMonths(-random.Next(1, 24)),
                             CurrentValue = random.Next(1000, 50000),
-                            RiskLevel = random.Next(1, 5),
-                            InvestmentStatus = 1,
+                            RiskLevel = random.Next(1, 4),
+                            InvestmentStatus = 0,
                         };
                     }
                 }
