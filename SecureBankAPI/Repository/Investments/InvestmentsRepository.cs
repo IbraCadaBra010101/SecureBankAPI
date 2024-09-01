@@ -62,14 +62,5 @@ namespace SecureBankAPI.Repository.Investments
             this.context.Investments.Update(investment);
             await this.context.SaveChangesAsync();
         }
-
-        /// <inheritdoc/>
-        public async Task DeleteInvestmentAsync(Guid investmentId)
-        {
-            var investment = await this.context.Investments.FindAsync(investmentId)
-                ?? throw new KeyNotFoundException($"Investment with ID {investmentId} not found.");
-            this.context.Investments.Remove(investment);
-            await this.context.SaveChangesAsync();
-        }
     }
 }

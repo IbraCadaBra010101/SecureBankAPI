@@ -1,4 +1,8 @@
-﻿namespace SecureBankAPI.Services.Clients
+﻿// <copyright file="IClientService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SecureBankAPI.Services.Clients
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

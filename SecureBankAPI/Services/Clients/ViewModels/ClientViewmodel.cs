@@ -1,4 +1,8 @@
-﻿namespace SecureBankAPI.Services.Clients.ViewModels
+﻿// <copyright file="ClientViewmodel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SecureBankAPI.Services.Clients.ViewModels
 {
     using System;
     using System.Collections.Generic;

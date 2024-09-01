@@ -1,5 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿// <copyright file="20240901095936_SeedInitialData.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 #nullable disable
 
@@ -7,6 +8,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SecureBankAPI.Migrations
 {
+    using System;
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     /// <inheritdoc />
     public partial class SeedInitialData : Migration
     {
@@ -23,7 +27,7 @@ namespace SecureBankAPI.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -41,7 +45,7 @@ namespace SecureBankAPI.Migrations
                     CurrentValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     RiskLevel = table.Column<int>(type: "int", nullable: false),
                     InvestmentStatus = table.Column<int>(type: "int", nullable: false),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -68,7 +72,7 @@ namespace SecureBankAPI.Migrations
                     { new Guid("8db5a940-42d2-41f4-b819-c8bbb4758b5b"), new DateTime(1985, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 9, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1083), "client6@example.com", "ClientFirstName6", "ClientLastName6", "555-0106" },
                     { new Guid("d72c6377-804f-48e2-843a-d6d73d139a5d"), new DateTime(1984, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 9, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1078), "client5@example.com", "ClientFirstName5", "ClientLastName5", "555-0105" },
                     { new Guid("dc61c81e-e77d-4a2f-b97a-9e0ffa39e7e3"), new DateTime(1988, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 9, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1105), "client9@example.com", "ClientFirstName9", "ClientLastName9", "555-0109" },
-                    { new Guid("e6d041a8-6275-4a5e-8d05-2831b3c9a360"), new DateTime(1986, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 9, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1089), "client7@example.com", "ClientFirstName7", "ClientLastName7", "555-0107" }
+                    { new Guid("e6d041a8-6275-4a5e-8d05-2831b3c9a360"), new DateTime(1986, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 9, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1089), "client7@example.com", "ClientFirstName7", "ClientLastName7", "555-0107" },
                 });
 
             migrationBuilder.InsertData(
@@ -105,7 +109,7 @@ namespace SecureBankAPI.Migrations
                     { new Guid("cc41e557-0ff8-4e27-81f1-e428fff5cd8e"), 7643m, new Guid("e6d041a8-6275-4a5e-8d05-2831b3c9a360"), 26048m, new DateTime(2023, 10, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1388), 3, 0, 2 },
                     { new Guid("d2468ad8-d567-4a01-a81e-afe2754f65dd"), 3179m, new Guid("7afe780a-2c87-4bae-8c8a-6075b763fd77"), 45862m, new DateTime(2023, 3, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1306), 4, 0, 1 },
                     { new Guid("d5902825-3733-4c85-886c-ee9bbc73fffe"), 7976m, new Guid("6dcae316-ed8e-4593-a9c0-4ae3cc48383f"), 18764m, new DateTime(2024, 6, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1326), 2, 0, 1 },
-                    { new Guid("dd522f27-d9ba-491c-9aa4-f640ebb42b17"), 42294m, new Guid("41098a16-6690-4683-8263-1c3c81705cd5"), 16166m, new DateTime(2024, 2, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1415), 4, 0, 1 }
+                    { new Guid("dd522f27-d9ba-491c-9aa4-f640ebb42b17"), 42294m, new Guid("41098a16-6690-4683-8263-1c3c81705cd5"), 16166m, new DateTime(2024, 2, 1, 11, 59, 36, 245, DateTimeKind.Local).AddTicks(1415), 4, 0, 1 },
                 });
 
             migrationBuilder.CreateIndex(
