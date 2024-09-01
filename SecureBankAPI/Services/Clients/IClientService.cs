@@ -41,5 +41,13 @@
         /// object representing the client and their investments, or null if the client is not found.
         /// </returns>
         Task<ClientWithInvestmentsViewModel> GetClientWithInvestmentsByIdAsync(Guid clientId);
+
+        /// <summary>
+        /// Gets a paginated list of clients with their investments.
+        /// </summary>
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">The size of the page.</param>
+        /// <returns>A paginated list of <see cref="ClientWithInvestmentsViewModel"/>.</returns>
+        Task<IEnumerable<ClientWithInvestmentsViewModel>> GetClientsWithInvestmentsAsync(int pageNumber, int pageSize);
     }
 }

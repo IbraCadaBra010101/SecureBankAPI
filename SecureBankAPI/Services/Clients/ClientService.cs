@@ -132,5 +132,39 @@
                 throw new Exception(ex.Message, ex);
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<ClientWithInvestmentsViewModel>> GetClientsWithInvestmentsAsync(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var clients = await this.clientsRepository
+                    .GetClientsPaginatedAsync(pageNumber, pageSize)
+                    .ConfigureAwait(false);
+
+                var clientWithInvestmentsList = new List<ClientWithInvestmentsViewModel>();
+
+                foreach (var client in clients)
+                {
+                    var investments = await this.investmentsRepository
+                        .GetInvestmentsByClientIdAsync(client.ClientId)
+                        .ConfigureAwait(false);
+
+                    var clientWithInvestments = new ClientWithInvestmentsViewModel
+                    {
+                        Client = client,
+                        Investments = investments.ToList(),
+                    };
+
+                    clientWithInvestmentsList.Add(clientWithInvestments);
+                }
+
+                return clientWithInvestmentsList;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex.InnerException);
+            }
+        }
     }
 }

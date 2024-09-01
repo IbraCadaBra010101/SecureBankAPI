@@ -47,5 +47,13 @@ namespace SecureBankAPI.Repository.Clients
         /// <param name="clientId">The unique identifier of the client to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task DeleteClientAsync(Guid clientId);
+
+        /// <summary>
+        /// Gets a paginated list of clients.
+        /// </summary>
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">The size of the page.</param>
+        /// <returns>A paginated list of clients.</returns>
+        Task<IEnumerable<Client>> GetClientsPaginatedAsync(int pageNumber, int pageSize);
     }
 }

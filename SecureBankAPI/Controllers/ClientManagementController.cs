@@ -20,17 +20,17 @@ namespace SecureBankAPI.Controllers
     /// </summary>
     [ApiController]
     [Route("[controller]")]
-    public class ClientsController : ControllerBase
+    public class ClientManagementController : ControllerBase
     {
-        private readonly ILogger<ClientsController> logger;
+        private readonly ILogger<ClientManagementController> logger;
         private readonly IClientService clientService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClientsController"/> class.
+        /// Initializes a new instance of the <see cref="ClientManagementController"/> class.
         /// </summary>
         /// <param name="logger">Logger instance.</param>
-        /// <param name="clientService">The service for client operations.</param>
-        public ClientsController(ILogger<ClientsController> logger, IClientService clientService)
+        /// <param name="clientService">The controller for client and investment operations.</param>
+        public ClientManagementController(ILogger<ClientManagementController> logger, IClientService clientService)
         {
             this.logger = logger;
             this.clientService = clientService;
@@ -48,6 +48,8 @@ namespace SecureBankAPI.Controllers
         {
             if (clientViewModel == null)
             {
+                this.logger.LogError(MessageConstants.ClientViewModelNullError);
+
                 return this.BadRequest(MessageConstants.ClientViewModelNullError);
             }
 
@@ -127,5 +129,36 @@ namespace SecureBankAPI.Controllers
                return this.StatusCode(500, ex.Message);
             }
         }
+
+        /// <summary>
+        /// Gets a paginated list of all clients and their investments.
+        /// </summary>
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">The size of the page.</param>
+        /// <returns>A paginated list of clients.</returns>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = Authentication.ClientsManagePolicy)]
+        [HttpGet]
+        [Route(Routes.ClientsInvestments)]
+        public async Task<IActionResult> GetClientInvestmentsAsync(int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var result = await this.clientService.GetClientsWithInvestmentsAsync(pageNumber, pageSize).ConfigureAwait(false);
+
+                if (result == null || !result.Any())
+                {
+                    return this.NotFound(MessageConstants.NoClientsInvestmentsFound);
+                }
+
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                this.logger?.LogError(ex, ex.Message);
+
+                return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
     }
 }

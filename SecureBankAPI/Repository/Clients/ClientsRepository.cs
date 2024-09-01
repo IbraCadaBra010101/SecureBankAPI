@@ -65,9 +65,20 @@ namespace SecureBankAPI.Repository.Clients
         /// <inheritdoc/>
         public async Task DeleteClientAsync(Guid clientId)
         {
-            var client = await this.context.Clients.FindAsync(clientId) ?? throw new KeyNotFoundException($"Client with ID {clientId} not found.");
+            var client = await this.context.Clients.FindAsync(clientId) ?? throw new KeyNotFoundException(nameof(clientId));
             this.context.Clients.Remove(client);
             await this.context.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<Client>> GetClientsPaginatedAsync(int pageNumber, int pageSize)
+        {
+            return await this.context.Clients
+                .AsNoTracking()
+                .OrderBy(c => c.ClientId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
     }
 }
