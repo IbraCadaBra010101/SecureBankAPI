@@ -29,7 +29,7 @@ namespace SecureBankAPI.Models
         /// Gets or sets the amount invested.
         /// </summary>
         /// <remarks>
-        /// The amount represents the value of the investment in GBP.
+        /// The amount represents the value of the original investment in GBP.
         /// </remarks>
         public decimal Amount { get; set; }
 
@@ -42,7 +42,7 @@ namespace SecureBankAPI.Models
         /// Gets or sets the current value of the investment.
         /// </summary>
         /// <remarks>
-        /// The current value is updated based on market conditions or periodic valuations.
+        /// The current value is updated based on market conditions or periodic valuations and represents the current wealth of the client.
         /// </remarks>
         public decimal CurrentValue { get; set; }
 

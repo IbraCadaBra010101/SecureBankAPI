@@ -166,5 +166,56 @@
                 throw new Exception(ex.Message, ex.InnerException);
             }
         }
+
+        /// <inheritdoc/>
+        public async Task TransferInvestmentFundsAsync(Guid sourceInvestmentId, Guid destinationInvestmentId, decimal amount)
+        {
+            if (amount <= 0)
+            {
+                throw new ArgumentException("Amount must be greater than zero.", nameof(amount));
+            }
+
+            using var transaction = await this.context.Database.BeginTransactionAsync();
+            try
+            {
+                var sourceInvestment = await this.investmentsRepository.GetInvestmentByIdAsync(sourceInvestmentId);
+
+                if (sourceInvestment == null)
+                {
+                    throw new KeyNotFoundException($"Source investment with ID {sourceInvestmentId} not found.");
+                }
+
+                var destinationInvestment = await this.investmentsRepository.GetInvestmentByIdAsync(destinationInvestmentId);
+
+                if (destinationInvestment == null)
+                {
+                    throw new KeyNotFoundException($"Destination investment with ID {destinationInvestmentId} not found.");
+                }
+
+                if (sourceInvestment.ClientId != destinationInvestment.ClientId)
+                {
+                    throw new InvalidOperationException("Both investments must belong to the same client.");
+                }
+
+                if (sourceInvestment.CurrentValue < amount)
+                {
+                    throw new InvalidOperationException("The source investment does not have enough funds.");
+                }
+
+                sourceInvestment.CurrentValue -= amount;
+
+                destinationInvestment.CurrentValue += amount;
+
+                await this.investmentsRepository.UpdateInvestmentAsync(sourceInvestment);
+                await this.investmentsRepository.UpdateInvestmentAsync(destinationInvestment);
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

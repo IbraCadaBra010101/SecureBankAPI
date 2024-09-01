@@ -41,18 +41,5 @@ namespace SecureBankAPI.Repository.Investments
         /// <param name="investment">The investment entity with updated values.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task UpdateInvestmentAsync(Investment investment);
-
-        /// <summary>
-        /// Deletes an investment from the repository by its unique identifier.
-        /// </summary>
-        /// <param name="investmentId">The unique identifier of the investment to delete.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task DeleteInvestmentAsync(Guid investmentId);
-
-        /// <summary>
-        /// Gets all investments from the repository.
-        /// </summary>
-        /// <returns>A list of all investment entities.</returns>
-        Task<IEnumerable<Investment>> GetAllInvestmentsAsync();
     }
 }

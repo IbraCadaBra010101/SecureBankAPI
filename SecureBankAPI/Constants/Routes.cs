@@ -75,5 +75,9 @@ namespace SecureBankAPI.Models
         /// </remarks>
         internal const string ClientsInvestmentsPaginated = "ClientsInvestments/Paginated";
 
+        /// <summary>
+        /// Route for transferring funds from one investment to another.
+        /// </summary>
+        internal const string TransferFunds = "transfer-funds";
     }
 }

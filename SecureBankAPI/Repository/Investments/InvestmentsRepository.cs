@@ -71,13 +71,5 @@ namespace SecureBankAPI.Repository.Investments
             this.context.Investments.Remove(investment);
             await this.context.SaveChangesAsync();
         }
-
-        /// <inheritdoc/>
-        public async Task<IEnumerable<Investment>> GetAllInvestmentsAsync()
-        {
-            return await this.context.Investments
-                .AsNoTracking()
-                .ToListAsync();
-        }
     }
 }

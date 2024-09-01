@@ -49,5 +49,17 @@
         /// <param name="pageSize">The size of the page.</param>
         /// <returns>A paginated list of <see cref="ClientWithInvestmentsViewModel"/>.</returns>
         Task<IEnumerable<ClientWithInvestmentsViewModel>> GetClientsWithInvestmentsAsync(int pageNumber, int pageSize);
+
+        /// <summary>
+        /// Transfers funds between two investments of the same client.
+        /// </summary>
+        /// <param name="sourceInvestmentId">The unique identifier of the source investment.</param>
+        /// <param name="destinationInvestmentId">The unique identifier of the destination investment.</param>
+        /// <param name="amount">The amount to transfer.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <exception cref="ArgumentException">Thrown when the investments do not belong to the same client or the amount is invalid.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown when either investment is not found.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the source investment has insufficient funds.</exception>
+        Task TransferInvestmentFundsAsync(Guid sourceInvestmentId, Guid destinationInvestmentId, decimal amount);
     }
 }
