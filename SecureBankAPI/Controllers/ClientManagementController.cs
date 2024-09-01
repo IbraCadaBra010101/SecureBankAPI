@@ -61,7 +61,7 @@ namespace SecureBankAPI.Controllers
             catch (Exception ex)
             {
                 this.logger.LogError(ex, ex.Message);
-                return this.StatusCode(500, MessageConstants.InternalServerError);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, MessageConstants.InternalServerError);
             }
         }
 
@@ -126,7 +126,7 @@ namespace SecureBankAPI.Controllers
             {
                this.logger.LogError(ex, ex.Message);
 
-               return this.StatusCode(500, ex.Message);
+               return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -194,19 +194,19 @@ namespace SecureBankAPI.Controllers
             {
                 this.logger.LogWarning(ex, MessageConstants.TransferFundsInvalidArgumentError);
 
-                return this.BadRequest(ex.Message);
+                return this.BadRequest(MessageConstants.TransferFundsInvalidArgumentError);
             }
             catch (KeyNotFoundException ex)
             {
                 this.logger.LogWarning(ex, MessageConstants.TransferFundsNotFoundError);
 
-                return this.NotFound(ex.Message);
+                return this.NotFound(MessageConstants.TransferFundsNotFoundError);
             }
             catch (InvalidOperationException ex)
             {
                 this.logger.LogWarning(ex, MessageConstants.TransferFundsOperationError);
 
-                return this.BadRequest(ex.Message);
+                return this.BadRequest(MessageConstants.TransferFundsOperationError);
             }
             catch (Exception ex)
             {
