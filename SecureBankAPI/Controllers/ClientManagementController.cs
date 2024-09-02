@@ -111,7 +111,7 @@ namespace SecureBankAPI.Controllers
 
                     if (clientWithInvestments == null)
                     {
-                        return this.NotFound("Client not found.");
+                        return this.NotFound(MessageConstants.NoClientsInvestmentsFound);
                     }
 
                     return this.Ok(clientWithInvestments);
