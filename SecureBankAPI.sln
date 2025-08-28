@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecureBankAPI", "SecureBankAPI\SecureBankAPI.csproj", "{CA8F4575-4556-4314-964C-F154BFE2C098}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureBankAPI.Test", "SecureBankAPI.Test\SecureBankAPI.Test.csproj", "{C07212A5-02D5-44E1-8401-F66D4B849436}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RealEstateAPI", "SecureBankAPI\SecureBankAPI.csproj", "{CA8F4575-4556-4314-964C-F154BFE2C098}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,38 +4,34 @@
 
 #pragma warning disable SA1200
 using System.Reflection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
-using SecureBankAPI.Data;
-using SecureBankAPI.Models;
-using SecureBankAPI.Repository.Clients;
-using SecureBankAPI.Repository.Investments;
-using SecureBankAPI.Services.Clients;
+using RealEstateAPI.Data;
+using RealEstateAPI.Repository.Apartments;
+using RealEstateAPI.Repository.Companies;
+using RealEstateAPI.Services.RealEstate;
+using RealEstateAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped(sp =>
+{
+    var nav = sp.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
+    return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
+});
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection(Authentication.AzureADSection));
-
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(Authentication.ClientsReadAllPolicy, policy =>
-        policy.RequireRole(Authentication.ClientsReadAllRole))
-    .AddPolicy(Authentication.ClientsManagePolicy, policy =>
-        policy.RequireRole(Authentication.ClientsManageRole))
-    .AddPolicy(Authentication.InvestmentsManagePolicy, policy =>
-        policy.RequireRole(Authentication.InvestmentsManageRole))
-    .AddPolicy(Authentication.InvestmentsReadPolicy, policy =>
-        policy.RequireRole(Authentication.InvestmentsReadRole));
+// Add TitleService for managing page titles
+builder.Services.AddScoped<TitleService>();
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SecureBankAPI", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "RealEstateAPI", Version = "v1", Description = "API for companies and apartments with webhook support." });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -50,39 +46,32 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer",
-                },
-            },
+            new OpenApiSecurityScheme(),
             new string[] { }
         },
     });
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-
-    c.IncludeXmlComments(xmlPath);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<SecureBankDBContext>(options =>
+builder.Services.AddDbContext<RealEstateDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
-builder.Services.AddScoped<IInvestmentsRepository, InvestmentsRepository>();
-
-builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<ICompaniesRepository, CompaniesRepository>();
+builder.Services.AddScoped<IApartmentsRepository, ApartmentsRepository>();
+builder.Services.AddScoped<IRealEstateService, RealEstateService>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<SecureBankDBContext>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<RealEstateDbContext>();
     dbContext.Database.Migrate();
 }
 
@@ -91,14 +80,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SecureBankAPI v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "RealEstateAPI v1");
     });
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.MapControllers();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RealEstateAPI Client</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .companies, .apartments { margin-top: 16px; }
+        .expiring { color: #b00020; font-weight: bold; }
+        select, button { padding: 6px 10px; }
+    </style>
+    <script>
+        async function loadCompanies() {
+            const res = await fetch('/api/RealEstate/companies');
+            const companies = await res.json();
+            const sel = document.getElementById('company');
+            sel.innerHTML = '';
+            companies.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.companyId; opt.textContent = c.name;
+                sel.appendChild(opt);
+            });
+            if (companies.length) { loadApartments(); }
+        }
+        async function loadApartments() {
+            const companyId = document.getElementById('company').value;
+            const [allRes, expRes] = await Promise.all([
+                fetch(`/api/RealEstate/companies/${companyId}/apartments`),
+                fetch(`/api/RealEstate/companies/${companyId}/contracts/expiring?months=3`)
+            ]);
+            const apartments = await allRes.json();
+            const expiring = await expRes.json();
+            const expiringSet = new Set(expiring.map(a => a.apartmentId));
+            const ul = document.getElementById('apartments');
+            ul.innerHTML = '';
+            apartments.forEach(a => {
+                const li = document.createElement('li');
+                const isExp = expiringSet.has(a.apartmentId);
+                li.innerHTML = `<span class="${isExp ? 'expiring' : ''}">${a.address} — ${a.rooms} rooms — ${a.rentPerMonth} SEK/mo ${isExp ? '(expiring ≤3 months)' : ''}</span>`;
+                ul.appendChild(li);
+            });
+        }
+        window.addEventListener('DOMContentLoaded', loadCompanies);
+    </script>
+    </head>
+<body>
+    <h1>RealEstate Client</h1>
+    <div class="companies">
+        <label for="company">Company:</label>
+        <select id="company" onchange="loadApartments()"></select>
+    </div>
+    <div class="apartments">
+        <h3>Apartments</h3>
+        <ul id="apartments"></ul>
+    </div>
+</body>
+</html>
+
