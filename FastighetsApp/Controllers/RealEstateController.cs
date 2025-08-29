@@ -121,12 +121,8 @@ namespace RealEstateAPI.Controllers
             {
                 var apartments = await this.apartmentService.GetApartmentsWithExpiringContractsAsync(companyId, TimeSpan.FromDays(30 * months));
 
-                if (apartments == null || !apartments.Any())
-                {
-                    return this.NotFound($"No expiring contracts found for company {companyId}");
-                }
-
-                return this.Ok(apartments);
+                // Return empty array instead of NotFound when there are no expiring contracts
+                return this.Ok(apartments ?? Enumerable.Empty<Apartment>());
             }
             catch (ArgumentException ex)
             {

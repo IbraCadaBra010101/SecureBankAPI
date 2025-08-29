@@ -29,20 +29,29 @@ const Dashboard: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [allResponse, expiringResponse] = await Promise.all([
-        fetch(`/api/RealEstate/companies/${selectedCompanyId}/apartments`),
-        fetch(`/api/RealEstate/companies/${selectedCompanyId}/contracts/expiring?months=3`)
-      ]);
-
-      if (!allResponse.ok || !expiringResponse.ok) {
+      // First, always try to get the apartments
+      const allResponse = await fetch(`/api/RealEstate/companies/${selectedCompanyId}/apartments`);
+      if (!allResponse.ok) {
         throw new Error('Failed to fetch apartments data');
       }
-
+      
       const allApartments = await allResponse.json();
-      const expiringApartments = await expiringResponse.json();
-
       setApartments(allApartments);
-      setExpiringApartmentIds(new Set(expiringApartments.map((a: Apartment) => a.apartmentId)));
+      
+      // Then try to get expiring contracts, but don't fail if this endpoint has issues
+      try {
+        const expiringResponse = await fetch(`/api/RealEstate/companies/${selectedCompanyId}/contracts/expiring?months=3`);
+        if (expiringResponse.ok) {
+          const expiringApartments = await expiringResponse.json();
+          setExpiringApartmentIds(new Set(expiringApartments.map((a: Apartment) => a.apartmentId)));
+        } else {
+          // If expiring contracts fails, just set empty set (all apartments will show as "Active")
+          setExpiringApartmentIds(new Set());
+        }
+      } catch (expiringError) {
+        // Silently handle expiring contracts errors - just set empty set
+        setExpiringApartmentIds(new Set());
+      }
     } catch (ex) {
       setError(ex instanceof Error ? ex.message : 'An error occurred');
     } finally {

@@ -8,6 +8,7 @@
     <DocumentationFile></DocumentationFile>
     <AssemblyName>RealEstateAPI</AssemblyName>
     <RootNamespace>RealEstateAPI</RootNamespace>
+
   </PropertyGroup>
 
   <ItemGroup>

@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/SecureBankAPI.Test/bin/Debug/net8.0/SecureBankAPI.Test.dll",
+            "program": "${workspaceFolder}/FastighetsApp/bin/Debug/net8.0/RealEstateAPI.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/SecureBankAPI.Test",
+            "cwd": "${workspaceFolder}/FastighetsApp",
             "console": "internalConsole",
             "stopAtEntry": false
         },

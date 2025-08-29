@@ -24,10 +24,6 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddHttpClient();
-builder.Services.AddScoped(sp =>
-{
-    return new HttpClient { BaseAddress = new Uri("https://localhost:7001") };
-});
 
 
 
@@ -87,6 +83,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.MapControllers();
