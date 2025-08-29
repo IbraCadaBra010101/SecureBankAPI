@@ -23,16 +23,13 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped(sp =>
 {
-    var nav = sp.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
-    return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
+    return new HttpClient { BaseAddress = new Uri("https://localhost:7001") };
 });
 
-builder.Services.AddScoped<TitleService>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -90,11 +87,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseRouting();
 
 app.MapControllers();
-app.MapRazorPages();
-app.MapBlazorHub();
 
 app.Run();
