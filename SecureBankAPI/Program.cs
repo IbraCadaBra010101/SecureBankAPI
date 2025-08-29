@@ -9,12 +9,20 @@ using Microsoft.OpenApi.Models;
 using RealEstateAPI.Data;
 using RealEstateAPI.Repository.Apartments;
 using RealEstateAPI.Repository.Companies;
-using RealEstateAPI.Services.RealEstate;
 using RealEstateAPI.Services;
+using RealEstateAPI.Services.Apartment;
+using RealEstateAPI.Services.RealEstate;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
@@ -24,7 +32,6 @@ builder.Services.AddScoped(sp =>
     return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
 });
 
-// Add TitleService for managing page titles
 builder.Services.AddScoped<TitleService>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -66,6 +73,7 @@ builder.Services.AddDbContext<RealEstateDbContext>(options =>
 builder.Services.AddScoped<ICompaniesRepository, CompaniesRepository>();
 builder.Services.AddScoped<IApartmentsRepository, ApartmentsRepository>();
 builder.Services.AddScoped<IRealEstateService, RealEstateService>();
+builder.Services.AddScoped<IApartmentService, ApartmentService>();
 
 var app = builder.Build();
 
@@ -78,19 +86,15 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "RealEstateAPI v1");
-    });
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
-app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseRouting();
 
 app.MapControllers();
+app.MapRazorPages();
 app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
 
 app.Run();

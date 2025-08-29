@@ -2,64 +2,80 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RealEstateAPI.Services.RealEstate
+namespace RealEstateAPI.Services.RealEstate;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using RealEstateAPI.Models;
+using RealEstateAPI.Repository.Companies;
+
+/// <summary>
+/// Service implementation for real estate operations.
+/// </summary>
+public class RealEstateService : IRealEstateService
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using RealEstateAPI.Models;
-    using RealEstateAPI.Repository.Apartments;
-    using RealEstateAPI.Repository.Companies;
+    private readonly ILogger<RealEstateService> logger;
+    private readonly ICompaniesRepository companiesRepository;
 
     /// <summary>
-    /// Default implementation of <see cref="IRealEstateService"/>.
+    /// Initializes a new instance of the <see cref="RealEstateService"/> class.
     /// </summary>
-    public class RealEstateService : IRealEstateService
+    /// <param name="logger">Application logger.</param>
+    /// <param name="companiesRepository">Repository for company operations.</param>
+    public RealEstateService(ILogger<RealEstateService> logger, ICompaniesRepository companiesRepository)
     {
-        private readonly ICompaniesRepository companiesRepository;
-        private readonly IApartmentsRepository apartmentsRepository;
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.companiesRepository = companiesRepository ?? throw new ArgumentNullException(nameof(companiesRepository));
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RealEstateService"/> class.
-        /// </summary>
-        /// <param name="companiesRepository">Companies repository.</param>
-        /// <param name="apartmentsRepository">Apartments repository.</param>
-        public RealEstateService(ICompaniesRepository companiesRepository, IApartmentsRepository apartmentsRepository)
+    /// <inheritdoc/>
+    public async Task<IEnumerable<Company>> GetCompaniesAsync()
+    {
+        try
         {
-            this.companiesRepository = companiesRepository;
-            this.apartmentsRepository = apartmentsRepository;
+            this.logger.LogDebug("Retrieving all companies");
+            var companies = await this.companiesRepository.GetAllAsync();
+            this.logger.LogInformation("Retrieved {Count} companies", companies.Count());
+            return companies;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error retrieving companies");
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<Company?> GetCompanyByIdAsync(Guid companyId)
+    {
+        if (companyId == Guid.Empty)
+        {
+            throw new ArgumentException("Company ID cannot be empty", nameof(companyId));
         }
 
-        /// <inheritdoc/>
-        public Task<IEnumerable<Company>> GetCompaniesAsync()
+        try
         {
-            return this.companiesRepository.GetCompaniesAsync();
-        }
-
-        /// <inheritdoc/>
-        public Task<IEnumerable<Apartment>> GetApartmentsByCompanyAsync(Guid companyId)
-        {
-            return this.apartmentsRepository.GetApartmentsByCompanyAsync(companyId);
-        }
-
-        /// <inheritdoc/>
-        public Task<IEnumerable<Apartment>> GetContractsExpiringWithinAsync(Guid companyId, TimeSpan within)
-        {
-            var beforeDate = DateTime.UtcNow.Add(within);
-            return this.apartmentsRepository.GetExpiringLeasesByCompanyAsync(companyId, beforeDate);
-        }
-
-        /// <inheritdoc/>
-        public async Task UpdateApartmentAttributeAsync(Guid apartmentId, Action<Apartment> updateAction)
-        {
-            var apartment = await this.apartmentsRepository.GetByIdAsync(apartmentId);
-            if (apartment == null)
+            this.logger.LogDebug("Retrieving company with ID: {CompanyId}", companyId);
+            var company = await this.companiesRepository.GetByIdAsync(companyId);
+            
+            if (company == null)
             {
-                throw new KeyNotFoundException("Apartment not found");
+                this.logger.LogWarning("Company with ID {CompanyId} not found", companyId);
             }
-
-            updateAction(apartment);
-            await this.apartmentsRepository.UpdateAsync(apartment);
+            else
+            {
+                this.logger.LogInformation("Retrieved company: {CompanyName}", company.Name);
+            }
+            
+            return company;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error retrieving company with ID: {CompanyId}", companyId);
+            throw;
         }
     }
 } 

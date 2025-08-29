@@ -61,4 +61,4 @@ namespace RealEstateAPI.Models
         /// </summary>
         public Company Company { get; set; } = null!;
     }
-} 
+}

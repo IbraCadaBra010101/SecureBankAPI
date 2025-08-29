@@ -1,3 +1,7 @@
+// <copyright file="TitleService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 namespace RealEstateAPI.Services;
 
 /// <summary>
@@ -16,7 +20,7 @@ public class TitleService
     /// <param name="title">The new page title</param>
     public void SetTitle(string title)
     {
-        TitleChanged?.Invoke(this, title);
+        this.TitleChanged?.Invoke(this, title);
     }
 
     /// <summary>
@@ -24,6 +28,6 @@ public class TitleService
     /// </summary>
     public void ClearTitle()
     {
-        TitleChanged?.Invoke(this, string.Empty);
+        this.TitleChanged?.Invoke(this, string.Empty);
     }
 }

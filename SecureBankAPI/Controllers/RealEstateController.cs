@@ -11,10 +11,11 @@ namespace RealEstateAPI.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using RealEstateAPI.Models;
+    using RealEstateAPI.Services.Apartment;
     using RealEstateAPI.Services.RealEstate;
 
     /// <summary>
-    /// REST endpoints for real estate operations: companies, apartments and webhooks.
+    /// REST endpoints for real estate operations: companies and apartments.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -22,16 +23,22 @@ namespace RealEstateAPI.Controllers
     {
         private readonly ILogger<RealEstateController> logger;
         private readonly IRealEstateService realEstateService;
+        private readonly IApartmentService apartmentService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RealEstateController"/> class.
         /// </summary>
         /// <param name="logger">Application logger.</param>
         /// <param name="realEstateService">Domain service for real estate operations.</param>
-        public RealEstateController(ILogger<RealEstateController> logger, IRealEstateService realEstateService)
+        /// <param name="apartmentService">Service for apartment operations.</param>
+        public RealEstateController(
+            ILogger<RealEstateController> logger,
+            IRealEstateService realEstateService,
+            IApartmentService apartmentService)
         {
-            this.logger = logger;
-            this.realEstateService = realEstateService;
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.realEstateService = realEstateService ?? throw new ArgumentNullException(nameof(realEstateService));
+            this.apartmentService = apartmentService ?? throw new ArgumentNullException(nameof(apartmentService));
         }
 
         /// <summary>
@@ -42,8 +49,18 @@ namespace RealEstateAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompaniesAsync()
         {
-            var companies = await this.realEstateService.GetCompaniesAsync();
-            return this.Ok(companies);
+            try
+            {
+                var companies = await this.realEstateService.GetCompaniesAsync();
+
+                return companies == null ? this.NotFound() : this.Ok(companies);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Error retrieving companies");
+
+                return this.StatusCode(500, "An error occurred while retrieving companies");
+            }
         }
 
         /// <summary>
@@ -55,8 +72,34 @@ namespace RealEstateAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Apartment>>> GetApartmentsByCompanyAsync(Guid companyId)
         {
-            var apartments = await this.realEstateService.GetApartmentsByCompanyAsync(companyId);
-            return this.Ok(apartments);
+            if (companyId == Guid.Empty)
+            {
+                return this.BadRequest("Company ID cannot be empty");
+            }
+
+            try
+            {
+                var apartments = await this.apartmentService.GetApartmentsByCompanyAsync(companyId);
+
+                if (apartments == null || !apartments.Any())
+                {
+                    return this.NotFound($"No apartments found for company {companyId}");
+                }
+
+                return this.Ok(apartments);
+            }
+            catch (ArgumentException ex)
+            {
+                this.logger.LogWarning(ex, "Invalid company ID provided: {CompanyId}", companyId);
+
+                return this.BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Error retrieving apartments for company {CompanyId}", companyId);
+
+                return this.StatusCode(500, "Internal server error occurred while retrieving apartments");
+            }
         }
 
         /// <summary>
@@ -69,71 +112,32 @@ namespace RealEstateAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Apartment>>> GetContractsExpiringAsync(Guid companyId, int months = 3)
         {
-            if (months <= 0)
+            if (companyId == Guid.Empty)
             {
-                return this.BadRequest("Months must be greater than zero");
-            }
-
-            var apartments = await this.realEstateService.GetContractsExpiringWithinAsync(companyId, TimeSpan.FromDays(30 * months));
-            return this.Ok(apartments);
-        }
-
-        /// <summary>
-        /// Webhook endpoint to update apartment attributes (e.g., occupancy, rent per month).
-        /// </summary>
-        /// <param name="payload">Update payload.</param>
-        /// <returns>HTTP 200 on success; 404 if apartment not found; 400 for invalid payload.</returns>
-        [HttpPost("webhooks/apartment-attribute")]
-        [AllowAnonymous]
-        public async Task<ActionResult> UpdateApartmentAttribute([FromBody] ApartmentAttributeUpdateDto payload)
-        {
-            if (payload == null || payload.ApartmentId == Guid.Empty)
-            {
-                return this.BadRequest("Invalid payload");
+                return this.BadRequest("Company ID cannot be empty");
             }
 
             try
             {
-                await this.realEstateService.UpdateApartmentAttributeAsync(payload.ApartmentId, apartment =>
+                var apartments = await this.apartmentService.GetApartmentsWithExpiringContractsAsync(companyId, TimeSpan.FromDays(30 * months));
+
+                if (apartments == null || !apartments.Any())
                 {
-                    if (payload.IsOccupied.HasValue)
-                    {
-                        apartment.IsOccupied = payload.IsOccupied.Value;
-                    }
+                    return this.NotFound($"No expiring contracts found for company {companyId}");
+                }
 
-                    if (payload.RentPerMonth.HasValue)
-                    {
-                        apartment.RentPerMonth = payload.RentPerMonth.Value;
-                    }
-                });
-
-                return this.Ok();
+                return this.Ok(apartments);
             }
-            catch (KeyNotFoundException)
+            catch (ArgumentException ex)
             {
-                return this.NotFound();
+                this.logger.LogWarning(ex, "Invalid parameters provided: CompanyId={CompanyId}, Months={Months}", companyId, months);
+                return this.BadRequest(ex.Message);
             }
-        }
-
-        /// <summary>
-        /// Webhook payload for updating apartment attributes.
-        /// </summary>
-        public class ApartmentAttributeUpdateDto
-        {
-            /// <summary>
-            /// Gets or sets the target apartment identifier.
-            /// </summary>
-            public Guid ApartmentId { get; set; }
-
-            /// <summary>
-            /// Gets or sets the occupancy flag to update.
-            /// </summary>
-            public bool? IsOccupied { get; set; }
-
-            /// <summary>
-            /// Gets or sets the rent per month to update.
-            /// </summary>
-            public decimal? RentPerMonth { get; set; }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Error retrieving expiring contracts for company {CompanyId}", companyId);
+                return this.StatusCode(500, "Internal server error occurred while retrieving expiring contracts");
+            }
         }
     }
 }

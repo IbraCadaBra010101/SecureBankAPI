@@ -2,63 +2,90 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RealEstateAPI.Repository.Apartments
+namespace RealEstateAPI.Repository.Apartments;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using RealEstateAPI.Data;
+using RealEstateAPI.Models;
+
+/// <summary>
+/// Repository implementation for apartment data operations.
+/// </summary>
+public class ApartmentsRepository : IApartmentsRepository
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
-    using RealEstateAPI.Data;
-    using RealEstateAPI.Models;
+    private readonly RealEstateDbContext context;
 
     /// <summary>
-    /// EF Core implementation of <see cref="IApartmentsRepository"/>.
+    /// Initializes a new instance of the <see cref="ApartmentsRepository"/> class.
     /// </summary>
-    public class ApartmentsRepository : IApartmentsRepository
+    /// <param name="context">The database context.</param>
+    public ApartmentsRepository(RealEstateDbContext context)
     {
-        private readonly RealEstateDbContext dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ApartmentsRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">EF DbContext.</param>
-        public ApartmentsRepository(RealEstateDbContext dbContext)
-        {
-            this.dbContext = dbContext;
-        }
-
-        /// <inheritdoc/>
-        public async Task<IEnumerable<Apartment>> GetApartmentsByCompanyAsync(Guid companyId)
-        {
-            return await this.dbContext.Apartments
-                .AsNoTracking()
-                .Where(a => a.CompanyId == companyId)
-                .OrderBy(a => a.Address)
-                .ToListAsync();
-        }
-
-        /// <inheritdoc/>
-        public async Task<IEnumerable<Apartment>> GetExpiringLeasesByCompanyAsync(Guid companyId, DateTime beforeDate)
-        {
-            return await this.dbContext.Apartments
-                .AsNoTracking()
-                .Where(a => a.CompanyId == companyId && a.LeaseEndDate <= beforeDate)
-                .OrderBy(a => a.LeaseEndDate)
-                .ToListAsync();
-        }
-
-        /// <inheritdoc/>
-        public async Task<Apartment?> GetByIdAsync(Guid apartmentId)
-        {
-            return await this.dbContext.Apartments.FirstOrDefaultAsync(a => a.ApartmentId == apartmentId);
-        }
-
-        /// <inheritdoc/>
-        public async Task UpdateAsync(Apartment apartment)
-        {
-            this.dbContext.Apartments.Update(apartment);
-            await this.dbContext.SaveChangesAsync();
-        }
+        this.context = context ?? throw new ArgumentNullException(nameof(context));
     }
-} 
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<Apartment>> GetAllAsync()
+    {
+        return await this.context.Apartments
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Apartment?> GetByIdAsync(Guid id)
+    {
+        return await this.context.Apartments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.ApartmentId == id);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<Apartment>> GetByCompanyIdAsync(Guid companyId)
+    {
+        return await this.context.Apartments
+            .AsNoTracking()
+            .Where(a => a.CompanyId == companyId)
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Apartment> AddAsync(Apartment apartment)
+    {
+        this.context.Apartments.Add(apartment);
+        await this.context.SaveChangesAsync();
+        return apartment;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Apartment> UpdateAsync(Apartment apartment)
+    {
+        this.context.Apartments.Update(apartment);
+        await this.context.SaveChangesAsync();
+        return apartment;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var apartment = await this.GetByIdAsync(id);
+        if (apartment == null)
+        {
+            return false;
+        }
+
+        this.context.Apartments.Remove(apartment);
+        await this.context.SaveChangesAsync();
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<int> SaveChangesAsync()
+    {
+        return await this.context.SaveChangesAsync();
+    }
+}
