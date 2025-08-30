@@ -6,10 +6,7 @@ namespace FastighetsAPI.Services.WebhookService
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Security.Cryptography;
-    using System.Text;
     using System.Threading.Tasks;
     using FastighetsAPI.Models.DataModels;
     using FastighetsAPI.Models.DTO;
@@ -17,11 +14,10 @@ namespace FastighetsAPI.Services.WebhookService
     using FastighetsAPI.Models.WebhookModels;
     using FastighetsAPI.Repository.Apartments;
     using FastighetsAPI.Repository.Companies;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// Servicee for apartment-related operations including webhook updatesb.
+    /// Service for apartment-related operations including webhook updates.
     /// </summary>
     public class WebhookProcessor : IWebhookProcessor
     {
@@ -53,7 +49,6 @@ namespace FastighetsAPI.Services.WebhookService
                 this.logger.LogError("Webhook received null payload");
                 return WebhookUpdateResult.CreateSystemError(
                     Guid.Empty,
-                    null,
                     "Webhook payload is null",
                     "NULL_PAYLOAD",
                     500);
@@ -65,33 +60,44 @@ namespace FastighetsAPI.Services.WebhookService
             {
                 return WebhookUpdateResult.CreateValidationError(
                     updateDto.ApartmentId,
-                    updateDto.SourceId,
                     validationResult.Errors,
                     "VALIDATION_FAILED");
             }
 
             try
             {
-                var apartment = await this.apartmentsRepository.GetApartmentByIdAsync(updateDto.ApartmentId);
+                var apartment = await this.apartmentsRepository.GetApartmentByIdForUpdateAsync(updateDto.ApartmentId);
 
                 if (apartment == null)
                 {
                     this.logger.LogWarning("Apartment {ApartmentId} not found for webhook update", updateDto.ApartmentId);
 
-                    return WebhookUpdateResult.CreateNotFound(updateDto.ApartmentId, updateDto.SourceId);
+                    return WebhookUpdateResult.CreateNotFound(updateDto.ApartmentId);
                 }
 
                 this.UpdateApartmentAttribute(apartment, updateDto);
 
-                await this.apartmentsRepository.SaveChangesAsync();
+                var result = await this.apartmentsRepository.UpdateApartmentAsync(apartment);
 
-                return WebhookUpdateResult.CreateSuccess(updateDto.ApartmentId, updateDto.SourceId);
+                if (result > 0)
+                {
+                    this.logger.LogInformation("Successfully updated apartment {ApartmentId} via webhook", updateDto.ApartmentId);
+                    return WebhookUpdateResult.CreateSuccess(updateDto.ApartmentId);
+                }
+                else
+                {
+                    this.logger.LogWarning("No changes were saved for apartment {ApartmentId}", updateDto.ApartmentId);
+                    return WebhookUpdateResult.CreateSystemError(
+                        updateDto.ApartmentId,
+                        "No changes were saved to the database",
+                        "SAVE_FAILED",
+                        500);
+                }
             }
             catch (Exception ex)
             {
                 return WebhookUpdateResult.CreateSystemError(
                     updateDto.ApartmentId,
-                    updateDto.SourceId,
                     $"Internal server error: {ex.Message}",
                     "INTERNAL_ERROR",
                     500);
@@ -115,76 +121,6 @@ namespace FastighetsAPI.Services.WebhookService
             var cutoffDate = DateTime.UtcNow.Add(timeSpan);
 
             return apartments.Where(a => a.LeaseEndDate <= cutoffDate);
-        }
-
-        /// <inheritdoc/>
-        public async Task<bool> ValidateWebhookSignatureAsync(HttpRequest request)
-        {
-            try
-            {
-                // Check if the signature header exists - this is important for säkerhet!
-                if (!request.Headers.TryGetValue("X-Signature", out var signatureHeader))
-                {
-                    this.logger.LogWarning("Webhook request missing X-Signature header");
-                    return false;
-                }
-
-                var signature = signatureHeader.ToString();
-                if (string.IsNullOrEmpty(signature))
-                {
-                    this.logger.LogWarning("Webhook request has empty X-Signature header");
-                    return false;
-                }
-
-                // Read the request body - we need this for signature validation
-                request.EnableBuffering();
-                request.Body.Position = 0;
-                
-                using var reader = new StreamReader(request.Body, leaveOpen: true);
-                var body = await reader.ReadToEndAsync();
-                request.Body.Position = 0;
-
-                // For test purposes, using a hardcoded secret
-                // In production, this should come from configuration or secure storage
-                var sharedSecret = "test-webhook-secret-key-2024";
-
-                // Compute HMAC-SHA256 signature using the shared hemlighet (secret)
-                var computedSignature = ComputeHmacSignature(body, sharedSecret);
-
-                // Compare signatures to see if they match
-                var isValid = string.Equals(signature, computedSignature, StringComparison.OrdinalIgnoreCase);
-
-                if (isValid)
-                {
-                    this.logger.LogDebug("Webhook signature validation successful");
-                }
-                else
-                {
-                    this.logger.LogWarning("Webhook signature validation failed. Expected: {Expected}, Received: {Received}", 
-                        computedSignature, signature);
-                }
-
-                return isValid;
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "Error during webhook signature validation");
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Computes HMAC-SHA256 signature for the given payload using the shared hemlighet (secret).
-        /// This method creates a cryptographic signature that can be used to verify the authenticity of webhook requests.
-        /// </summary>
-        /// <param name="payload">The payload to sign. Cannot be null.</param>
-        /// <param name="secret">The shared secret key used for signing.</param>
-        /// <returns>The computed signature in hexadecimal format.</returns>
-        private static string ComputeHmacSignature(string payload, string secret)
-        {
-            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
-            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-            return Convert.ToHexString(hash).ToLowerInvariant();
         }
 
         private ValidationResult ValidateWebhookPayloadAsync(ApartmentAttributeUpdateDto updateDto)
@@ -239,14 +175,32 @@ namespace FastighetsAPI.Services.WebhookService
 
         private void UpdateApartmentAttribute(Apartment apartment, ApartmentAttributeUpdateDto updateDto)
         {
-            if (updateDto.IsOccupied.HasValue)
-            {
-                apartment.IsOccupied = updateDto.IsOccupied.Value;
-            }
+            var hasChanges = false;
 
-            if (updateDto.RentPerMonth.HasValue)
+            if (updateDto.RentPerMonth.HasValue && apartment.RentPerMonth != updateDto.RentPerMonth.Value)
             {
                 apartment.RentPerMonth = updateDto.RentPerMonth.Value;
+                hasChanges = true;
+                this.logger.LogDebug("Updated rent per month to {RentPerMonth} for apartment {ApartmentId}", 
+                    updateDto.RentPerMonth.Value, apartment.ApartmentId);
+            }
+
+            if (updateDto.IsOccupied.HasValue && apartment.IsOccupied != updateDto.IsOccupied.Value)
+            {
+                apartment.IsOccupied = updateDto.IsOccupied.Value;
+                hasChanges = true;
+                this.logger.LogDebug("Updated occupancy status to {IsOccupied} for apartment {ApartmentId}", 
+                    updateDto.IsOccupied.Value, apartment.ApartmentId);
+            }
+
+            if (hasChanges)
+            {
+                this.logger.LogInformation("Updated apartment {ApartmentId} with {ChangeCount} changes", 
+                    apartment.ApartmentId, hasChanges ? 1 : 0);
+            }
+            else
+            {
+                this.logger.LogDebug("No changes detected for apartment {ApartmentId}", apartment.ApartmentId);
             }
         }
     }

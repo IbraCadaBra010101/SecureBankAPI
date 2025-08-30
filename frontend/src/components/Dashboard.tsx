@@ -1,161 +1,132 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Company, Apartment } from '../types/realEstate';
 
 const Dashboard: React.FC = () => {
+  // State variables
   const [companies, setCompanies] = useState<Company[]>([]);
   const [apartments, setApartments] = useState<Apartment[]>([]);
-  const [expiringApartmentIds, setExpiringApartmentIds] = useState<Set<string>>(new Set());
+  const [expiringIds, setExpiringIds] = useState<Set<string>>(new Set());
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function
+  const fetchData = async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  };
+
+  // Load companies
   const loadCompanies = async () => {
-    setError(null);
     try {
-      const response = await fetch('/api/RealEstate/companies');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchData('/api/apartments/companies');
       setCompanies(data);
+      if (data.length > 0) setSelectedCompanyId(data[0].companyId);
     } catch (ex) {
       setError(ex instanceof Error ? ex.message : 'An error occurred');
     }
   };
 
-  const loadApartments = useCallback(async () => {
-    if (!selectedCompanyId) return;
+  // Load apartments
+  const loadApartments = async (companyId: string) => {
+    if (!companyId) return;
     
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
+    
     try {
-      // First, always try to get the apartments
-      const allResponse = await fetch(`/api/RealEstate/companies/${selectedCompanyId}/apartments`);
-      if (!allResponse.ok) {
-        throw new Error('Failed to fetch apartments data');
-      }
-      
-      const allApartments = await allResponse.json();
-      setApartments(allApartments);
-      
-      // Then try to get expiring contracts, but don't fail if this endpoint has issues
-      try {
-        const expiringResponse = await fetch(`/api/RealEstate/companies/${selectedCompanyId}/contracts/expiring?months=3`);
-        if (expiringResponse.ok) {
-          const expiringApartments = await expiringResponse.json();
-          setExpiringApartmentIds(new Set(expiringApartments.map((a: Apartment) => a.apartmentId)));
-        } else {
-          // If expiring contracts fails, just set empty set (all apartments will show as "Active")
-          setExpiringApartmentIds(new Set());
-        }
-      } catch (expiringError) {
-        // Silently handle expiring contracts errors - just set empty set
-        setExpiringApartmentIds(new Set());
-      }
+      const [allApartments, expiringApartments] = await Promise.allSettled([
+        fetchData(`/api/apartments/companies/${companyId}/apartments`),
+        fetchData(`/api/apartments/companies/${companyId}/contracts/expiring?months=3`)
+      ]);
+
+      setApartments(allApartments.status === 'fulfilled' ? allApartments.value : []);
+      setExpiringIds(expiringApartments.status === 'fulfilled' 
+        ? new Set(expiringApartments.value.map((a: Apartment) => a.apartmentId))
+        : new Set());
     } catch (ex) {
       setError(ex instanceof Error ? ex.message : 'An error occurred');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [selectedCompanyId]);
-
-  useEffect(() => {
-    loadCompanies();
-  }, []);
-
-  useEffect(() => {
-    if (companies.length > 0 && !selectedCompanyId) {
-      setSelectedCompanyId(companies[0].companyId);
-    }
-  }, [companies, selectedCompanyId]);
-
-  useEffect(() => {
-    if (selectedCompanyId) {
-      loadApartments();
-    }
-  }, [selectedCompanyId, loadApartments]);
-
-  const handleCompanyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const companyId = event.target.value;
-    setSelectedCompanyId(companyId);
   };
 
+  useEffect(() => { loadCompanies(); }, []);
+  useEffect(() => { if (selectedCompanyId) loadApartments(selectedCompanyId); }, [selectedCompanyId]);
+
   return (
-    <div>
-      <div className="card mb-3">
-        <div className="card-body">
-          <div className="row g-3 align-items-center">
-            <div className="col-auto">
-              <label className="col-form-label">Company</label>
-            </div>
-            <div className="col-auto">
-              <select 
-                className="form-select" 
-                style={{ minWidth: '260px' }}
-                value={selectedCompanyId}
-                onChange={handleCompanyChange}
-              >
-                {companies.map((company) => (
-                  <option key={company.companyId} value={company.companyId}>
-                    {company.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      padding: '2rem',
+      paddingTop: '15vh'
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        width: '100%'
+      }}>
+        {/* Company selector */}
+        <div style={{marginBottom: '2rem', padding: '1.5rem', border: '1px solid #dee2e6', borderRadius: '0.5rem', backgroundColor: '#f8f9fa'}}>
+          <label style={{fontWeight: 'bold', fontSize: '1.1rem'}}>Company: </label>
+          <select 
+            style={{marginLeft: '1rem', minWidth: '250px', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid #ced4da'}}
+            value={selectedCompanyId}
+            onChange={(e) => setSelectedCompanyId(e.target.value)}
+          >
+            {companies.map((company) => (
+              <option key={company.companyId} value={company.companyId}>
+                {company.name}
+              </option>
+            ))}
+          </select>
         </div>
-      </div>
 
-      {isLoading && (
-        <div className="d-flex align-items-center">
-          <div className="spinner-border spinner-border-sm me-2" role="status"></div>
-          Loading...
-        </div>
-      )}
+        {/* Loading */}
+        {loading && <div style={{textAlign: 'center', padding: '2rem', fontSize: '1.2rem'}}>Loading...</div>}
 
-      {!isLoading && (
-        <div className="card">
-          <div className="card-body p-0">
-            <div className="table-responsive">
-              <table className="table table-hover table-sm align-middle m-0">
-                <thead className="table-light">
-                  <tr>
-                    <th scope="col">Address</th>
-                    <th scope="col" className="text-center">Rooms</th>
-                    <th scope="col" className="text-end">Rent / mo</th>
-                    <th scope="col" className="text-center">Status</th>
+        {/* Table */}
+        {!loading && (
+          <div style={{border: '1px solid #dee2e6', borderRadius: '0.5rem', overflow: 'hidden'}}>
+            <table style={{width: '100%', borderCollapse: 'collapse'}}>
+              <thead style={{backgroundColor: '#f8f9fa'}}>
+                <tr>
+                  <th style={{padding: '1rem', textAlign: 'left', borderBottom: '1px solid #dee2e6', fontWeight: 'bold'}}>Address</th>
+                  <th style={{padding: '1rem', textAlign: 'center', borderBottom: '1px solid #dee2e6', fontWeight: 'bold'}}>Rooms</th>
+                  <th style={{padding: '1rem', textAlign: 'right', borderBottom: '1px solid #dee2e6', fontWeight: 'bold'}}>Rent</th>
+                  <th style={{padding: '1rem', textAlign: 'center', borderBottom: '1px solid #dee2e6', fontWeight: 'bold'}}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {apartments.map((apartment) => (
+                  <tr key={apartment.apartmentId} style={{borderBottom: '1px solid #dee2e6'}}>
+                    <td style={{padding: '1rem'}}>{apartment.address}</td>
+                    <td style={{padding: '1rem', textAlign: 'center'}}>{apartment.rooms}</td>
+                    <td style={{padding: '1rem', textAlign: 'right'}}>{apartment.rentPerMonth.toLocaleString()} SEK</td>
+                    <td style={{padding: '1rem', textAlign: 'center'}}>
+                      <span style={{
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        backgroundColor: expiringIds.has(apartment.apartmentId) ? '#dc3545' : '#198754',
+                        color: 'white'
+                      }}>
+                        {expiringIds.has(apartment.apartmentId) ? 'Expiring' : 'Active'}
+                      </span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {apartments.map((apartment) => {
-                    const isExpiring = expiringApartmentIds.has(apartment.apartmentId);
-                    return (
-                      <tr key={apartment.apartmentId}>
-                        <td>{apartment.address}</td>
-                        <td className="text-center">{apartment.rooms}</td>
-                        <td className="text-end">{apartment.rentPerMonth.toLocaleString()} SEK</td>
-                        <td className="text-center">
-                          {isExpiring ? (
-                            <span className="badge bg-danger">Expiring ≤ 3 months</span>
-                          ) : (
-                            <span className="badge bg-success">Active</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-      )}
+        )}
 
-      {error && (
-        <div className="alert alert-danger mt-3" role="alert">
-          {error}
-        </div>
-      )}
+        {/* Error */}
+        {error && <div style={{marginTop: '2rem', padding: '1rem', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '0.5rem', color: '#721c24'}}>{error}</div>}
+      </div>
     </div>
   );
 };

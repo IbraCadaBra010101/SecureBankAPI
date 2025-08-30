@@ -5,15 +5,17 @@
 namespace FastighetsAPI.Models.DataModels
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
 
     /// <summary>
     /// Represents an apartment unit belonging to a company.
-    /// </summary> 
+    /// </summary>
     public class Apartment
     {
         /// <summary>
         /// Gets or sets the apartment identifier.
         /// </summary>
+        [Required]
         public Guid ApartmentId { get; set; }
 
         /// <summary>

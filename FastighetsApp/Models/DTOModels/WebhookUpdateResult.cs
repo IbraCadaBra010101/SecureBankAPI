@@ -31,10 +31,7 @@ namespace FastighetsAPI.Models.WebhookModels
         /// </summary>
         public DateTime ProcessedAt { get; set; }
 
-        /// <summary>
-        /// Gets or sets the source identifier from the webhook payload.
-        /// </summary>
-        public string? SourceId { get; set; }
+
 
         /// <summary>
         /// Gets or sets the HTTP status code that should be returned.
@@ -55,9 +52,8 @@ namespace FastighetsAPI.Models.WebhookModels
         /// Creates a successful result.
         /// </summary>
         /// <param name="apartmentId">The apartment ID that was updated.</param>
-        /// <param name="sourceId">The source identifier.</param>
         /// <returns>A successful webhook result.</returns>
-        public static WebhookUpdateResult CreateSuccess(Guid apartmentId, string? sourceId)
+        public static WebhookUpdateResult CreateSuccess(Guid apartmentId)
         {
             return new WebhookUpdateResult
             {
@@ -65,7 +61,6 @@ namespace FastighetsAPI.Models.WebhookModels
                 Message = "Apartment attributes updated successfully",
                 ApartmentId = apartmentId,
                 ProcessedAt = DateTime.UtcNow,
-                SourceId = sourceId,
                 HttpStatusCode = 200,
             };
         }
@@ -74,11 +69,10 @@ namespace FastighetsAPI.Models.WebhookModels
         /// Creates a validation error result.
         /// </summary>
         /// <param name="apartmentId">The apartment ID that was attempted to update.</param>
-        /// <param name="sourceId">The source identifier.</param>
         /// <param name="validationErrors">List of validation errors.</param>
         /// <param name="errorCode">The error code.</param>
         /// <returns>A validation error result.</returns>
-        public static WebhookUpdateResult CreateValidationError(Guid apartmentId, string? sourceId, List<ValidationError> validationErrors, string errorCode)
+        public static WebhookUpdateResult CreateValidationError(Guid apartmentId, List<ValidationError> validationErrors, string errorCode)
         {
             return new WebhookUpdateResult
             {
@@ -86,7 +80,6 @@ namespace FastighetsAPI.Models.WebhookModels
                 Message = "Validation errors occurred while processing webhook",
                 ApartmentId = apartmentId,
                 ProcessedAt = DateTime.UtcNow,
-                SourceId = sourceId,
                 HttpStatusCode = 400,
                 ValidationErrors = validationErrors,
                 ErrorCode = errorCode,
@@ -97,9 +90,8 @@ namespace FastighetsAPI.Models.WebhookModels
         /// Creates a not found result.
         /// </summary>
         /// <param name="apartmentId">The apartment ID that was not found.</param>
-        /// <param name="sourceId">The source identifier.</param>
         /// <returns>A not found result.</returns>
-        public static WebhookUpdateResult CreateNotFound(Guid apartmentId, string? sourceId)
+        public static WebhookUpdateResult CreateNotFound(Guid apartmentId)
         {
             return new WebhookUpdateResult
             {
@@ -107,7 +99,6 @@ namespace FastighetsAPI.Models.WebhookModels
                 Message = $"Apartment {apartmentId} not found",
                 ApartmentId = apartmentId,
                 ProcessedAt = DateTime.UtcNow,
-                SourceId = sourceId,
                 HttpStatusCode = 404,
                 ErrorCode = "APARTMENT_NOT_FOUND",
             };
@@ -117,12 +108,11 @@ namespace FastighetsAPI.Models.WebhookModels
         /// Creates a system error result.
         /// </summary>
         /// <param name="apartmentId">The apartment ID that was being processed.</param>
-        /// <param name="sourceId">The source identifier.</param>
         /// <param name="errorMessage">The error message.</param>
         /// <param name="errorCode">The error code.</param>
         /// <param name="statusCode">The status code.</param>
         /// <returns>A system error result.</returns>
-        public static WebhookUpdateResult CreateSystemError(Guid apartmentId, string? sourceId, string errorMessage, string errorCode, int statusCode)
+        public static WebhookUpdateResult CreateSystemError(Guid apartmentId, string errorMessage, string errorCode, int statusCode)
         {
             return new WebhookUpdateResult
             {
@@ -130,7 +120,6 @@ namespace FastighetsAPI.Models.WebhookModels
                 Message = errorMessage,
                 ApartmentId = apartmentId,
                 ProcessedAt = DateTime.UtcNow,
-                SourceId = sourceId,
                 HttpStatusCode = statusCode,
                 ErrorCode = errorCode,
             };

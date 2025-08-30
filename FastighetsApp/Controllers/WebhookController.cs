@@ -13,7 +13,7 @@ namespace FastighetsAPI.Controllers
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// Controller for a exposed webhook for external systems.
+    /// Controller for exposed webhook endpoints - external systems can call these
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -44,24 +44,11 @@ namespace FastighetsAPI.Controllers
         [HttpPost("apartment-attribute")]
         public async Task<ActionResult<WebhookUpdateResult>> UpdateApartmentAttribute([FromBody] ApartmentAttributeUpdateDto payload)
         {
-            // Validate webhook signature first - this is important for säkerhet (security)!
-            if (!await this.webhookProcessor.ValidateWebhookSignatureAsync(this.Request))
-            {
-                this.logger.LogWarning("Webhook request failed signature validation");
-                var unauthorizedResult = WebhookUpdateResult.CreateSystemError(
-                    Guid.Empty, 
-                    null, 
-                    "Webhook signature validation failed", 
-                    "UNAUTHORIZED", 
-                    401);
-                return this.StatusCode(unauthorizedResult.HttpStatusCode, unauthorizedResult);
-            }
-
             if (payload == null)
             {
-                this.logger.LogWarning("Webhook received null or invalid payload");
+                this.logger.LogWarning("Webhook got null payload - not good");
 
-                var nullPayloadResult = WebhookUpdateResult.CreateSystemError(Guid.Empty, null, "Webhook payload is null or ApartmentId is missing/empty", "INVALID_PAYLOAD", 400);
+                var nullPayloadResult = WebhookUpdateResult.CreateSystemError(Guid.Empty, "Webhook payload is null or ApartmentId is missing/empty", "INVALID_PAYLOAD", 400);
 
                 return this.StatusCode(nullPayloadResult.HttpStatusCode, nullPayloadResult);
             }
@@ -71,7 +58,6 @@ namespace FastighetsAPI.Controllers
                 this.logger.LogWarning("Webhook received payload with empty ApartmentId");
                 var emptyIdResult = WebhookUpdateResult.CreateSystemError(
                     Guid.Empty, 
-                    payload.SourceId, 
                     "ApartmentId cannot be empty", 
                     "INVALID_APARTMENT_ID", 
                     400);
@@ -91,8 +77,7 @@ namespace FastighetsAPI.Controllers
                 }
                 else
                 {
-                    this.logger.LogWarning("Webhook processing failed for apartment {ApartmentId}: {Error}", 
-                        payload.ApartmentId, result.Message);
+                    this.logger.LogWarning("Webhook processing failed for apartment {ApartmentId}: {Error}", payload.ApartmentId, result.Message);
                 }
 
                 return this.StatusCode(result.HttpStatusCode, result);
@@ -101,29 +86,12 @@ namespace FastighetsAPI.Controllers
             {
                 this.logger.LogError(ex, "Unexpected error processing webhook for apartment {ApartmentId}", payload.ApartmentId);
 
-                var systemErrorResult = WebhookUpdateResult.CreateSystemError(payload.ApartmentId, payload.SourceId, $"Unexpected system error: {ex.Message}", "UNEXPECTED_ERROR", 500);
+                var systemErrorResult = WebhookUpdateResult.CreateSystemError(payload.ApartmentId, $"Unexpected system error: {ex.Message}", "UNEXPECTED_ERROR", 500);
 
                 return this.StatusCode(systemErrorResult.HttpStatusCode, systemErrorResult);
             }
         }
 
-        /// <summary>
-        /// Gets the shared secret for webhook testing purposes.
-        /// Note: This endpoint should be removed in production - it's only for testing!
-        /// The secret is used for HMAC signature validation of webhook requests.
-        /// </summary>
-        /// <returns>The shared secret key and other useful information for testing.</returns>
-        [HttpGet("secret")]
-        public ActionResult<string> GetSharedSecret()
-        {
-            // This endpoint is for testing purposes only
-            // In production, this should be removed or secured with additional authentication
-            return this.Ok(new { 
-                message = "Shared secret for testing webhook signatures",
-                secret = "test-webhook-secret-key-2024",
-                algorithm = "HMAC-SHA256",
-                header = "X-Signature"
-            });
-        }
+
     }
 }

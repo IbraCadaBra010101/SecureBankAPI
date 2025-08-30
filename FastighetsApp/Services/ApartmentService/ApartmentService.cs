@@ -14,7 +14,7 @@ namespace FastighetsAPI.Services.ApartmentService
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// Service implementation for real apartment servicee-.
+    /// Service implementation for apartment operations - handles the business logic
     /// </summary>
     public class ApartmentService : IApartmentService
     {

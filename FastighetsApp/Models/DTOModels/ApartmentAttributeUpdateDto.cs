@@ -17,10 +17,7 @@ namespace FastighetsAPI.Models.DTO
         [Required]
         public Guid ApartmentId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the source identifier from the webhook payload.
-        /// </summary>
-        public string? SourceId { get; set; }
+
 
         /// <summary>
         /// Gets or sets the occupancy flag to update.

@@ -45,6 +45,13 @@ namespace FastighetsAPI.Repository.Apartments
                 .FirstOrDefaultAsync(a => a.ApartmentId == id);
         }
 
+        /// <inheritdoc/> 
+        public async Task<Apartment?> GetApartmentByIdForUpdateAsync(Guid id)
+        {
+            return await this.context.Apartments
+                .FirstOrDefaultAsync(a => a.ApartmentId == id);
+        }
+
         /// <inheritdoc/>
         public async Task<IEnumerable<Apartment>> GetByCompanyIdAsync(Guid companyId)
         {
@@ -52,6 +59,14 @@ namespace FastighetsAPI.Repository.Apartments
                 .AsNoTracking()
                 .Where(a => a.CompanyId == companyId)
                 .ToListAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> UpdateApartmentAsync(Apartment apartment)
+        {
+            this.context.Apartments.Update(apartment);
+
+            return await this.context.SaveChangesAsync();
         }
 
         /// <inheritdoc/>

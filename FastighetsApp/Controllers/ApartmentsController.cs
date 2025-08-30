@@ -14,7 +14,7 @@ namespace FastighetsAPI.Controllers
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    ///eendpoints for real estate operation.
+    /// Controller for real estate operations - handles apartments and companies
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -53,12 +53,12 @@ namespace FastighetsAPI.Controllers
             {
                 this.logger.LogError(ex, "Error retrieving companies");
 
-                return this.StatusCode(500, "An error occurred while retrieving companies");
+                return this.StatusCode(500, "Something went wrong while getting companies");
             }
         }
 
         /// <summary>
-        /// Returns apartmentsf for a specific company.
+        /// Returns apartments for a specific company.
         /// </summary>
         /// <param name="companyId">Company identifier.</param>
         /// <returns>List of apartments for the company.</returns>
