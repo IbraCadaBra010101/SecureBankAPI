@@ -2,11 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RealEstateAPI.Data
+namespace FastighetsAPI.Data
 {
     using System;
+    using FastighetsAPI.Models.DataModels;
     using Microsoft.EntityFrameworkCore;
-    using RealEstateAPI.Models;
 
     /// <summary>
     /// Represents the session with the database, providing access to the data and handling transactions.

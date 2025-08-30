@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace RealEstateAPI.Migrations
+namespace FastighetsAPI.Migrations
 {
     /// <inheritdoc />
     public partial class FastighetsDB1 : Migration

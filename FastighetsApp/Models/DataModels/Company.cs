@@ -2,8 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RealEstateAPI.Models
-{
+namespace FastighetsAPI.Models.DataModels
+{ 
     using System;
     using System.Collections.Generic;
 
@@ -42,4 +42,4 @@ namespace RealEstateAPI.Models
         /// </summary>
         public ICollection<Apartment> Apartments { get; set; } = new List<Apartment>();
     }
-} 
+}

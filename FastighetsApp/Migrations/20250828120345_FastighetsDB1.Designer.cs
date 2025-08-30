@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RealEstateAPI.Data;
+using FastighetsAPI.Data;
 
 #nullable disable
 
-namespace RealEstateAPI.Migrations
+namespace FastighetsAPI.Migrations
 {
     [DbContext(typeof(RealEstateDbContext))]
     [Migration("20250828120345_FastighetsDB1")]
@@ -25,7 +25,7 @@ namespace RealEstateAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("RealEstateAPI.Models.Apartment", b =>
+            modelBuilder.Entity("FastighetsAPI.Models.DataModels.Apartment", b =>
                 {
                     b.Property<Guid>("ApartmentId")
                         .ValueGeneratedOnAdd()
@@ -149,7 +149,7 @@ namespace RealEstateAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RealEstateAPI.Models.Company", b =>
+            modelBuilder.Entity("FastighetsAPI.Models.DataModels.Company", b =>
                 {
                     b.Property<Guid>("CompanyId")
                         .ValueGeneratedOnAdd()
@@ -210,9 +210,9 @@ namespace RealEstateAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RealEstateAPI.Models.Apartment", b =>
+            modelBuilder.Entity("FastighetsAPI.Models.DataModels.Apartment", b =>
                 {
-                    b.HasOne("RealEstateAPI.Models.Company", "Company")
+                    b.HasOne("FastighetsAPI.Models.DataModels.Company", "Company")
                         .WithMany("Apartments")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -221,7 +221,7 @@ namespace RealEstateAPI.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("RealEstateAPI.Models.Company", b =>
+            modelBuilder.Entity("FastighetsAPI.Models.DataModels.Company", b =>
                 {
                     b.Navigation("Apartments");
                 });

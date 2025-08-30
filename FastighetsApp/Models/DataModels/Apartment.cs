@@ -2,13 +2,13 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RealEstateAPI.Models
+namespace FastighetsAPI.Models.DataModels
 {
     using System;
 
     /// <summary>
     /// Represents an apartment unit belonging to a company.
-    /// </summary>
+    /// </summary> 
     public class Apartment
     {
         /// <summary>

@@ -2,47 +2,41 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RealEstateAPI.Controllers
+namespace FastighetsAPI.Controllers
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using FastighetsAPI.Models.DataModels;
+    using FastighetsAPI.Services.ApartmentService;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
-    using RealEstateAPI.Models;
-    using RealEstateAPI.Services.Apartment;
-    using RealEstateAPI.Services.RealEstate;
 
     /// <summary>
-    /// REST endpoints for real estate operations: companies and apartments.
+    ///eendpoints for real estate operation.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class RealEstateController : ControllerBase
+    public class ApartmentsController : ControllerBase
     {
-        private readonly ILogger<RealEstateController> logger;
-        private readonly IRealEstateService realEstateService;
+        private readonly ILogger<ApartmentsController> logger;
         private readonly IApartmentService apartmentService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RealEstateController"/> class.
+        /// Initializes a new instance of the <see cref="ApartmentsController"/> class.
         /// </summary>
         /// <param name="logger">Application logger.</param>
-        /// <param name="realEstateService">Domain service for real estate operations.</param>
         /// <param name="apartmentService">Service for apartment operations.</param>
-        public RealEstateController(
-            ILogger<RealEstateController> logger,
-            IRealEstateService realEstateService,
-            IApartmentService apartmentService)
+        public ApartmentsController(
+            ILogger<ApartmentsController> logger, IApartmentService apartmentService)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.realEstateService = realEstateService ?? throw new ArgumentNullException(nameof(realEstateService));
             this.apartmentService = apartmentService ?? throw new ArgumentNullException(nameof(apartmentService));
         }
 
         /// <summary>
-        /// Returns all companies.
+        /// Returns companies/fastighetsbolag.
         /// </summary>
         /// <returns>List of companies.</returns>
         [HttpGet("companies")]
@@ -51,7 +45,7 @@ namespace RealEstateAPI.Controllers
         {
             try
             {
-                var companies = await this.realEstateService.GetCompaniesAsync();
+                var companies = await this.apartmentService.GetCompaniesAsync();
 
                 return companies == null ? this.NotFound() : this.Ok(companies);
             }
@@ -64,7 +58,7 @@ namespace RealEstateAPI.Controllers
         }
 
         /// <summary>
-        /// Returns all apartments for a specific company.
+        /// Returns apartmentsf for a specific company.
         /// </summary>
         /// <param name="companyId">Company identifier.</param>
         /// <returns>List of apartments for the company.</returns>
@@ -103,7 +97,8 @@ namespace RealEstateAPI.Controllers
         }
 
         /// <summary>
-        /// Returns apartments under a company with leases expiring within the given number of months.
+        /// Returns apartments for a company with contracts expiring within the given number of months.
+        /// defaults to 3 months.
         /// </summary>
         /// <param name="companyId">Company identifier.</param>
         /// <param name="months">Threshold in months (defaults to 3).</param>
@@ -121,7 +116,6 @@ namespace RealEstateAPI.Controllers
             {
                 var apartments = await this.apartmentService.GetApartmentsWithExpiringContractsAsync(companyId, TimeSpan.FromDays(30 * months));
 
-                // Return empty array instead of NotFound when there are no expiring contracts
                 return this.Ok(apartments ?? Enumerable.Empty<Apartment>());
             }
             catch (ArgumentException ex)

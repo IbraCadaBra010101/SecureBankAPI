@@ -4,14 +4,13 @@
 
 #pragma warning disable SA1200
 using System.Reflection;
+using FastighetsAPI.Services.ApartmentService;
+using FastighetsAPI.Services.WebhookService;
+using FastighetsAPI.Repository.Companies;
+using FastighetsAPI.Repository.Apartments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using RealEstateAPI.Data;
-using RealEstateAPI.Repository.Apartments;
-using RealEstateAPI.Repository.Companies;
-using RealEstateAPI.Services;
-using RealEstateAPI.Services.Apartment;
-using RealEstateAPI.Services.RealEstate;
+using FastighetsAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,13 +24,11 @@ builder.Services.AddControllers()
 
 builder.Services.AddHttpClient();
 
-
-
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "RealEstateAPI", Version = "v1", Description = "API for companies and apartments with webhook support." });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "FastighetsAPI", Version = "v1", Description = "API for companies and apartments with webhook support." });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -65,7 +62,7 @@ builder.Services.AddDbContext<RealEstateDbContext>(options =>
 
 builder.Services.AddScoped<ICompaniesRepository, CompaniesRepository>();
 builder.Services.AddScoped<IApartmentsRepository, ApartmentsRepository>();
-builder.Services.AddScoped<IRealEstateService, RealEstateService>();
+builder.Services.AddScoped<IWebhookProcessor, WebhookProcessor>();
 builder.Services.AddScoped<IApartmentService, ApartmentService>();
 
 var app = builder.Build();
@@ -83,7 +80,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseRouting();
 
 app.MapControllers();

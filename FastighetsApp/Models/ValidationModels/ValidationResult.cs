@@ -1,4 +1,4 @@
-﻿namespace RealEstateAPI.Models
+﻿namespace FastighetsAPI.Models.Validation
 {
     /// <summary>
     /// Result of webhook payload validation.

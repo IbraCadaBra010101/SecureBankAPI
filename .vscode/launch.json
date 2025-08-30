@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/FastighetsApp/bin/Debug/net8.0/RealEstateAPI.dll",
+            "program": "${workspaceFolder}/FastighetsApp/bin/Debug/net8.0/FastighetsAPI.dll",
             "args": [],
             "cwd": "${workspaceFolder}/FastighetsApp",
             "console": "internalConsole",
