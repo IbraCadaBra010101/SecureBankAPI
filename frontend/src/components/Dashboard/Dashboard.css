@@ -1,0 +1,32 @@
+.dashboard-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15rem;
+}
+
+.dashboard-content {
+  max-width: 1200px;
+  width: 100%;
+}
+
+.company-selector-card {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background-color: #f8f9fa;
+}
+
+.company-selector-label {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.company-selector-select {
+  margin-left: 1rem;
+  min-width: 250px;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+}

@@ -1,5 +1,5 @@
-// <copyright file="RealEstateController.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ApartmentsController.cs" company="Ibrahim Mahdi">
+// Copyright (c) Ibrahim Mahdi. All rights reserved.
 // </copyright>
 
 namespace FastighetsAPI.Controllers
@@ -13,9 +13,6 @@ namespace FastighetsAPI.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
-    /// <summary>
-    /// Controller for real estate operations - handles apartments and companies
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class ApartmentsController : ControllerBase
@@ -23,11 +20,6 @@ namespace FastighetsAPI.Controllers
         private readonly ILogger<ApartmentsController> logger;
         private readonly IApartmentService apartmentService;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ApartmentsController"/> class.
-        /// </summary>
-        /// <param name="logger">Application logger.</param>
-        /// <param name="apartmentService">Service for apartment operations.</param>
         public ApartmentsController(
             ILogger<ApartmentsController> logger, IApartmentService apartmentService)
         {
@@ -35,10 +27,6 @@ namespace FastighetsAPI.Controllers
             this.apartmentService = apartmentService ?? throw new ArgumentNullException(nameof(apartmentService));
         }
 
-        /// <summary>
-        /// Returns companies/fastighetsbolag.
-        /// </summary>
-        /// <returns>List of companies.</returns>
         [HttpGet("companies")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompaniesAsync()
@@ -57,11 +45,6 @@ namespace FastighetsAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Returns apartments for a specific company.
-        /// </summary>
-        /// <param name="companyId">Company identifier.</param>
-        /// <returns>List of apartments for the company.</returns>
         [HttpGet("companies/{companyId}/apartments")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Apartment>>> GetApartmentsByCompanyAsync(Guid companyId)
@@ -96,13 +79,6 @@ namespace FastighetsAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Returns apartments for a company with contracts expiring within the given number of months.
-        /// defaults to 3 months.
-        /// </summary>
-        /// <param name="companyId">Company identifier.</param>
-        /// <param name="months">Threshold in months (defaults to 3).</param>
-        /// <returns>List of apartments with expiring leases.</returns>
         [HttpGet("companies/{companyId}/contracts/expiring")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Apartment>>> GetContractsExpiringAsync(Guid companyId, int months = 3)

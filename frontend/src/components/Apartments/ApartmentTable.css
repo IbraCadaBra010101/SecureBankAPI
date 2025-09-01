@@ -1,0 +1,36 @@
+.apartment-table-container {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.apartment-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.apartment-table-header {
+  background-color: #f8f9fa;
+}
+
+.apartment-table-th,
+.apartment-table-td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+}
+
+.status-badge-expiring {
+  background-color: #120608;
+}
+
+.status-badge-active {
+  background-color: #198754;
+}

@@ -1,9 +1,7 @@
-// <copyright file="Program.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="Program.cs" company="Ibrahim Mahdi">
+// Copyright (c) Ibrahim Mahdi. All rights reserved.
 // </copyright>
 
-#pragma warning disable SA1200
-using System.Reflection;
 using FastighetsAPI.Services.ApartmentService;
 using FastighetsAPI.Services.WebhookService;
 using FastighetsAPI.Repository.Companies;
@@ -40,19 +38,6 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Enter 'Bearer' [space] and then your token in the text input below. Example: 'Bearer your_token_here'.",
     });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme(),
-            new string[] { }
-        },
-    });
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-    {
-        c.IncludeXmlComments(xmlPath);
-    }
 });
 
 builder.Services.AddSwaggerGen();
@@ -62,6 +47,7 @@ builder.Services.AddDbContext<RealEstateDbContext>(options =>
 
 builder.Services.AddScoped<ICompaniesRepository, CompaniesRepository>();
 builder.Services.AddScoped<IApartmentsRepository, ApartmentsRepository>();
+
 builder.Services.AddScoped<IWebhookProcessor, WebhookProcessor>();
 builder.Services.AddScoped<IApartmentService, ApartmentService>();
 

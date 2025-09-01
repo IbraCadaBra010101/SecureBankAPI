@@ -1,5 +1,5 @@
-// <copyright file="CompaniesRepository.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="CompaniesRepository.cs" company="Ibrahim Mahdi">
+// Copyright (c) Ibrahim Mahdi. All rights reserved.
 // </copyright>
 
 namespace FastighetsAPI.Repository.Companies
@@ -12,23 +12,15 @@ namespace FastighetsAPI.Repository.Companies
     using FastighetsAPI.Data;
     using FastighetsAPI.Repository.Companies;
 
-    /// <summary>
-    /// Repository implementation for company data operations.
-    /// </summary>
     public class CompaniesRepository : ICompaniesRepository
     {
         private readonly RealEstateDbContext context;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompaniesRepository"/> class.
-        /// </summary>
-        /// <param name="context">The database context.</param>
         public CompaniesRepository(RealEstateDbContext context)
         {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        /// <inheritdoc/>
         public async Task<IEnumerable<Company>> GetAllAsync()
         {
             return await this.context.Companies
@@ -36,7 +28,6 @@ namespace FastighetsAPI.Repository.Companies
                 .ToListAsync();
         }
 
-        /// <inheritdoc/>
         public async Task<Company?> GetByIdAsync(Guid id)
         {
             return await this.context.Companies
@@ -44,7 +35,6 @@ namespace FastighetsAPI.Repository.Companies
                 .FirstOrDefaultAsync(c => c.CompanyId == id);
         }
 
-        /// <inheritdoc/>
         public async Task<int> SaveChangesAsync()
         {
             return await this.context.SaveChangesAsync();

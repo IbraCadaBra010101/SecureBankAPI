@@ -1,7 +1,7 @@
 {
   "name": "fastighets-app",
   "version": "1.0.0",
-  "description": "Real Estate Management Application with .NET Backend and React Frontend",
+  "description": "Real Estate Management System",
   "scripts": {
     "start": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "cd FastighetsApp && dotnet run",
@@ -19,6 +19,5 @@
     "react",
     "typescript"
   ],
-  "author": "Your Name",
   "license": "MIT"
 }

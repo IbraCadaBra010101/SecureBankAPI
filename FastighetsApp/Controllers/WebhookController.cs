@@ -1,5 +1,5 @@
-// <copyright file="WebhookController.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="WebhookController.cs" company="Ibrahim Mahdi">
+// Copyright (c) Ibrahim Mahdi. All rights reserved.
 // </copyright>
 
 namespace FastighetsAPI.Controllers
@@ -12,9 +12,6 @@ namespace FastighetsAPI.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
-    /// <summary>
-    /// Controller for exposed webhook endpoints - external systems can call these
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class WebhookController : ControllerBase
@@ -22,25 +19,12 @@ namespace FastighetsAPI.Controllers
         private readonly ILogger<WebhookController> logger;
         private readonly IWebhookProcessor webhookProcessor;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebhookController"/> class.
-        /// </summary>
-        /// <param name="logger">Application logger.</param>
-        /// <param name="webhookProcessor">Service for webhook operations.</param>
         public WebhookController(ILogger<WebhookController> logger, IWebhookProcessor webhookProcessor)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.webhookProcessor = webhookProcessor ?? throw new ArgumentNullException(nameof(webhookProcessor));
         }
 
-        /// <summary>
-        /// Webhook endpoint to update the apartment attributes from external systems.
-        /// This endpoint is exposed for external systems to send updates about lägenheter (apartments).
-        /// </summary>
-        /// <param name="payload">The webhook payload containing apartment updates. Must not be null.</param>
-        /// <returns>
-        /// HTTP Responses with detailed information about the processing result.
-        /// </returns>
         [HttpPost("apartment-attribute")]
         public async Task<ActionResult<WebhookUpdateResult>> UpdateApartmentAttribute([FromBody] ApartmentAttributeUpdateDto payload)
         {
@@ -56,16 +40,13 @@ namespace FastighetsAPI.Controllers
             if (payload.ApartmentId == Guid.Empty)
             {
                 this.logger.LogWarning("Webhook received payload with empty ApartmentId");
-                var emptyIdResult = WebhookUpdateResult.CreateSystemError(
-                    Guid.Empty, 
-                    "ApartmentId cannot be empty", 
-                    "INVALID_APARTMENT_ID", 
-                    400);
+
+                var emptyIdResult = WebhookUpdateResult.CreateSystemError(Guid.Empty, "ApartmentId cannot be empty", "INVALID_APARTMENT_ID", 400);
+
                 return this.StatusCode(emptyIdResult.HttpStatusCode, emptyIdResult);
             }
 
-            this.logger.LogInformation(
-                "Webhook received for apartment {ApartmentId}", payload.ApartmentId);
+            this.logger.LogInformation("Webhook received for apartment {ApartmentId}", payload.ApartmentId);
 
             try
             {
@@ -91,7 +72,5 @@ namespace FastighetsAPI.Controllers
                 return this.StatusCode(systemErrorResult.HttpStatusCode, systemErrorResult);
             }
         }
-
-
     }
 }
